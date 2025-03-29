@@ -8,6 +8,7 @@
 
 
 class UCameraComponent;
+class USpringArmComponent;
 
 UCLASS()
 class SHOOTTHEMUP_API ASTUCharacterBase : public ACharacter
@@ -18,16 +19,22 @@ public:
 
 	ASTUCharacterBase();
 
+	virtual void Tick(float DeltaTime) override;
+
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+
 protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Components")
 	TObjectPtr<UCameraComponent> CameraComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Components")
+	TObjectPtr<USpringArmComponent> SpringArmComponent;
+
 	virtual void BeginPlay() override;
 
-public:	
+private:
 
-	virtual void Tick(float DeltaTime) override;
-
-	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+	void MoveForward(const float Value);
+	void MoveRight(const float Value);
 };
