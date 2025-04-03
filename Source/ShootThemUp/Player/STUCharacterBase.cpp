@@ -7,9 +7,11 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "ShootThemUp/Components/STUCharacterMovementComponent.h"
 
 
-ASTUCharacterBase::ASTUCharacterBase()
+ASTUCharacterBase::ASTUCharacterBase(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer.SetDefaultSubobjectClass<USTUCharacterMovementComponent>(CharacterMovementComponentName))
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -32,16 +34,6 @@ void ASTUCharacterBase::BeginPlay()
 	Super::BeginPlay();
 }
 
-void ASTUCharacterBase::MoveForward(const float Value)
-{
-	AddMovementInput(GetActorForwardVector(), Value);
-}
-
-void ASTUCharacterBase::MoveRight(const float Value)
-{
-	AddMovementInput(GetActorRightVector(), Value);
-}
-
 void ASTUCharacterBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -57,6 +49,42 @@ void ASTUCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &ThisClass::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis(TEXT("TurnAround"), this, &ThisClass::AddControllerYawInput);
 
-	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &ThisClass::Jump);
+    PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &ThisClass::Jump);
+
+    PlayerInputComponent->BindAction(TEXT("Run"), IE_Pressed, this, &ThisClass::OnStartRunning);
+    PlayerInputComponent->BindAction(TEXT("Run"), IE_Released, this, &ThisClass::OnStopRunning);
 }
 
+bool ASTUCharacterBase::GetIsRunning() const
+{
+    return bRequiredRunning && bMovingForward && !GetVelocity().IsZero();
+}
+
+void ASTUCharacterBase::MoveForward(const float Value)
+{
+    bMovingForward = Value > 0.f;
+    AddMovementInput(GetActorForwardVector(), Value);
+}
+
+void ASTUCharacterBase::MoveRight(const float Value)
+{
+    AddMovementInput(GetActorRightVector(), Value);
+}
+
+void ASTUCharacterBase::OnStartRunning()
+{
+    bRequiredRunning = true;
+    // if (auto* MovementComponent = Cast<UCharacterMovementComponent>(GetMovementComponent()); IsValid(MovementComponent))
+    // {
+    //     MovementComponent->MaxWalkSpeed *= 2.f;
+    // }
+}
+
+void ASTUCharacterBase::OnStopRunning()
+{
+    bRequiredRunning = false;
+    // if (auto* MovementComponent = Cast<UCharacterMovementComponent>(GetMovementComponent()); IsValid(MovementComponent))
+    // {
+    //     MovementComponent->MaxWalkSpeed /= 2.f;
+    // }
+}
