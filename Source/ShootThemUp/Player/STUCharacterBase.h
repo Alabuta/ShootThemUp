@@ -26,6 +26,9 @@ public:
     UFUNCTION(BlueprintPure, Category="Movement")
     bool GetIsRunning() const;
 
+    UFUNCTION(BlueprintPure, Category="Movement")
+    float GetMovementDirectionAngle() const;
+
 protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Components")

@@ -60,6 +60,22 @@ bool ASTUCharacterBase::GetIsRunning() const
     return bRequiredRunning && bMovingForward && !GetVelocity().IsZero();
 }
 
+float ASTUCharacterBase::GetMovementDirectionAngle() const
+{
+    const auto Velocity = GetVelocity().GetSafeNormal();
+    if (Velocity.IsNearlyZero())
+    {
+        return 0.f;
+    }
+
+    const auto ActorForwardVector = GetActorForwardVector();
+
+    const auto Y = ActorForwardVector.Cross(Velocity).Dot(GetActorUpVector());
+    const auto X = Velocity.Dot(ActorForwardVector);
+
+	return FMath::Atan2(Y, X);
+}
+
 void ASTUCharacterBase::MoveForward(const float Value)
 {
     bMovingForward = Value > 0.f;
@@ -74,17 +90,9 @@ void ASTUCharacterBase::MoveRight(const float Value)
 void ASTUCharacterBase::OnStartRunning()
 {
     bRequiredRunning = true;
-    // if (auto* MovementComponent = Cast<UCharacterMovementComponent>(GetMovementComponent()); IsValid(MovementComponent))
-    // {
-    //     MovementComponent->MaxWalkSpeed *= 2.f;
-    // }
 }
 
 void ASTUCharacterBase::OnStopRunning()
 {
     bRequiredRunning = false;
-    // if (auto* MovementComponent = Cast<UCharacterMovementComponent>(GetMovementComponent()); IsValid(MovementComponent))
-    // {
-    //     MovementComponent->MaxWalkSpeed /= 2.f;
-    // }
 }
