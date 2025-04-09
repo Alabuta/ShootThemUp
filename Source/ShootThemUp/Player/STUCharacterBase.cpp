@@ -5,9 +5,15 @@
 
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/TextRenderComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Logging/StructuredLog.h"
 #include "ShootThemUp/Components/STUCharacterMovementComponent.h"
+#include "ShootThemUp/Components/STUHealthComponent.h"
+
+
+DEFINE_LOG_CATEGORY_STATIC(LogSTUCharacterBase, All, All);
 
 
 ASTUCharacterBase::ASTUCharacterBase(const FObjectInitializer& ObjectInitializer)
@@ -23,6 +29,10 @@ ASTUCharacterBase::ASTUCharacterBase(const FObjectInitializer& ObjectInitializer
 	CameraComponent->SetupAttachment(SpringArmComponent);
 	CameraComponent->bUsePawnControlRotation = false;
 
+	HealthComponent = CreateDefaultSubobject<USTUHealthComponent>(TEXT("HealthComponent"));
+
+    HealthRenderComponent = CreateDefaultSubobject<UTextRenderComponent>(TEXT("HealthRenderComponent"));
+    HealthRenderComponent->SetupAttachment(GetRootComponent());
 	// GetCharacterMovement()->bOrientRotationToMovement = true;
 	//
 	// bUseControllerRotationYaw = false;
@@ -37,6 +47,11 @@ void ASTUCharacterBase::BeginPlay()
 void ASTUCharacterBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+    if (IsValid(HealthRenderComponent) && IsValid(HealthComponent))
+    {
+        HealthRenderComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), HealthComponent->GetHealth())));
+    }
 }
 
 void ASTUCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

@@ -7,6 +7,8 @@
 #include "STUCharacterBase.generated.h"
 
 
+class UTextRenderComponent;
+class USTUHealthComponent;
 class UCameraComponent;
 class USpringArmComponent;
 
@@ -36,6 +38,12 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Components")
 	TObjectPtr<USpringArmComponent> SpringArmComponent;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Components")
+    TObjectPtr<USTUHealthComponent> HealthComponent;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Components")
+    TObjectPtr<UTextRenderComponent> HealthRenderComponent;
 
 	virtual void BeginPlay() override;
 
