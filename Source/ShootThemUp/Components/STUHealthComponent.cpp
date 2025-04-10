@@ -7,6 +7,9 @@
 #include "ShootThemUp/Player/STUCharacterBase.h"
 
 
+DEFINE_LOG_CATEGORY_STATIC(LogHealthComponent, All, All);
+
+
 USTUHealthComponent::USTUHealthComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -20,6 +23,8 @@ void USTUHealthComponent::OnTakeAnyDamage(
     AActor* DamageCauser)
 {
     CurrentHealth -= Damage;
+
+    UE_LOGFMT(LogHealthComponent, Display, "Damage: {0}", Damage);
 }
 
 void USTUHealthComponent::BeginPlay()
