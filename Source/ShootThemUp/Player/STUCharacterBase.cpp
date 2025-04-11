@@ -30,9 +30,15 @@ ASTUCharacterBase::ASTUCharacterBase(const FObjectInitializer& ObjectInitializer
 	CameraComponent->bUsePawnControlRotation = false;
 
 	HealthComponent = CreateDefaultSubobject<USTUHealthComponent>(TEXT("HealthComponent"));
+    if (IsValid(HealthComponent))
+    {
+        HealthComponent->OnDeath.AddUObject(this, &ThisClass::OnDeath);
+        HealthComponent->OnHealthChanged.AddUObject(this, &ThisClass::OnHealthChanged);
+    }
 
     HealthRenderComponent = CreateDefaultSubobject<UTextRenderComponent>(TEXT("HealthRenderComponent"));
     HealthRenderComponent->SetupAttachment(GetRootComponent());
+
 	// GetCharacterMovement()->bOrientRotationToMovement = true;
 	//
 	// bUseControllerRotationYaw = false;
@@ -42,16 +48,16 @@ ASTUCharacterBase::ASTUCharacterBase(const FObjectInitializer& ObjectInitializer
 void ASTUCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+    if (IsValid(HealthComponent))
+    {
+        OnHealthChanged(HealthComponent->GetHealth());
+    }
 }
 
 void ASTUCharacterBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-    if (IsValid(HealthRenderComponent) && IsValid(HealthComponent))
-    {
-        HealthRenderComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), HealthComponent->GetHealth())));
-    }
 }
 
 void ASTUCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -110,4 +116,26 @@ void ASTUCharacterBase::OnStartRunning()
 void ASTUCharacterBase::OnStopRunning()
 {
     bRequiredRunning = false;
+}
+
+void ASTUCharacterBase::OnDeath()
+{
+    UE_LOGFMT(LogSTUCharacterBase, Warning, "Character %s is dead! [{0}]", *GetNameSafe(this));
+
+    PlayAnimMontage(DeathAnimMontage);
+
+    if (auto* MovementComponent = GetCharacterMovement(); IsValid(MovementComponent))
+    {
+        MovementComponent->DisableMovement();
+    }
+
+    SetLifeSpan(5.f);
+}
+
+void ASTUCharacterBase::OnHealthChanged(const float CurrentHealth)
+{
+    if (IsValid(HealthRenderComponent) && IsValid(HealthComponent))
+    {
+        HealthRenderComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), CurrentHealth)));
+    }
 }

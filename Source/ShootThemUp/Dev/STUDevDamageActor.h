@@ -22,6 +22,9 @@ protected:
     TObjectPtr<USceneComponent> SceneComponent;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TSubclassOf<UDamageType> DamageTypeClass;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FColor Color{FColor::Red};
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)

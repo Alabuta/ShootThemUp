@@ -45,6 +45,9 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Components")
     TObjectPtr<UTextRenderComponent> HealthRenderComponent;
 
+    UPROPERTY(EditDefaultsOnly, Category="Animation")
+    TObjectPtr<UAnimMontage> DeathAnimMontage;
+
 	virtual void BeginPlay() override;
 
 private:
@@ -57,4 +60,7 @@ private:
 
 	void OnStartRunning();
 	void OnStopRunning();
+
+    void OnDeath();
+    void OnHealthChanged(const float CurrentHealth);
 };

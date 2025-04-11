@@ -3,16 +3,27 @@
 
 #include "STUHealthComponent.h"
 
+#include "GameFramework/DamageType.h"
 #include "Logging/StructuredLog.h"
 #include "ShootThemUp/Player/STUCharacterBase.h"
-
-
-DEFINE_LOG_CATEGORY_STATIC(LogHealthComponent, All, All);
 
 
 USTUHealthComponent::USTUHealthComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+}
+
+void USTUHealthComponent::BeginPlay()
+{
+    Super::BeginPlay();
+
+    CurrentHealth = MaxHealth;
+    OnHealthChanged.Broadcast(CurrentHealth);
+
+    if (auto* OwnerCharacter = GetOwner<ASTUCharacterBase>(); IsValid(OwnerCharacter))
+    {
+        OwnerCharacter->OnTakeAnyDamage.AddDynamic(this, &ThisClass::OnTakeAnyDamage);
+    }
 }
 
 void USTUHealthComponent::OnTakeAnyDamage(
@@ -22,20 +33,16 @@ void USTUHealthComponent::OnTakeAnyDamage(
     AController* Instigator,
     AActor* DamageCauser)
 {
-    CurrentHealth -= Damage;
-
-    UE_LOGFMT(LogHealthComponent, Display, "Damage: {0}", Damage);
-}
-
-void USTUHealthComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-    CurrentHealth = MaxHealth;
-
-    if (auto* OwnerCharacter = GetOwner<ASTUCharacterBase>(); IsValid(OwnerCharacter))
+    if (Damage <= 0.f || IsDead())
     {
-        OwnerCharacter->OnTakeAnyDamage.AddDynamic(this, &ThisClass::OnTakeAnyDamage);
+        return;
+    }
+
+    CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.f, MaxHealth);
+    OnHealthChanged.Broadcast(CurrentHealth);
+
+    if (IsDead())
+    {
+        OnDeath.Broadcast();
     }
 }
-
