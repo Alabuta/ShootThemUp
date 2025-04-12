@@ -31,12 +31,24 @@ public:
     float GetHealth() const;
 
     UFUNCTION(BlueprintPure, Category="Health")
-    bool IsDead() const { return CurrentHealth <= 0.f; }
+    bool IsDead() const;
 
 protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Health", meta=(ClampMin="1", ClampMax="1000"))
     float MaxHealth{100.f};
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Heal", meta=(Units="Seconds", EditCondition="bAutoHeal"))
+    float HealUpdateTime{1.f};
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Heal", meta=(Units="Seconds", EditCondition="bAutoHeal"))
+    float HealStartDelay{3.f};
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Heal", meta=(EditCondition="bAutoHeal"))
+    float HealAmount{5.f};
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Heal")
+    uint8 bAutoHeal : 1 {true};
 
 	virtual void BeginPlay() override;
 
@@ -50,7 +62,12 @@ protected:
 
 private:
 
+    FTimerHandle HealthTimerHandle;
+
     float CurrentHealth{0.f};
+
+    void HealUpdate();
+    void SetHealth(const float NewHealth);
 };
 
 inline float USTUHealthComponent::GetHealth() const

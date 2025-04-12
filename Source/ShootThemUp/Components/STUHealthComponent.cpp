@@ -3,7 +3,8 @@
 
 #include "STUHealthComponent.h"
 
-#include "GameFramework/DamageType.h"
+#include "TimerManager.h"
+#include "Engine/World.h"
 #include "Logging/StructuredLog.h"
 #include "ShootThemUp/Player/STUCharacterBase.h"
 
@@ -13,12 +14,16 @@ USTUHealthComponent::USTUHealthComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
+bool USTUHealthComponent::IsDead() const
+{
+    return FMath::IsNearlyZero(CurrentHealth);
+}
+
 void USTUHealthComponent::BeginPlay()
 {
     Super::BeginPlay();
 
-    CurrentHealth = MaxHealth;
-    OnHealthChanged.Broadcast(CurrentHealth);
+    SetHealth(MaxHealth);
 
     if (auto* OwnerCharacter = GetOwner<ASTUCharacterBase>(); IsValid(OwnerCharacter))
     {
@@ -38,11 +43,52 @@ void USTUHealthComponent::OnTakeAnyDamage(
         return;
     }
 
-    CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.f, MaxHealth);
-    OnHealthChanged.Broadcast(CurrentHealth);
+    const auto* World = GetWorld();
+    if (!IsValid(World))
+    {
+        return;
+    }
+
+    SetHealth(CurrentHealth - Damage);
+
+    World->GetTimerManager().ClearTimer(HealthTimerHandle);
 
     if (IsDead())
     {
         OnDeath.Broadcast();
     }
+    else if (bAutoHeal)
+    {
+        World->GetTimerManager().SetTimer(
+            HealthTimerHandle,
+            this,
+            &ThisClass::HealUpdate,
+            HealUpdateTime,
+            true,
+            HealStartDelay
+        );
+    }
+}
+
+void USTUHealthComponent::HealUpdate()
+{
+    const float NewHealth = FMath::Clamp(CurrentHealth + HealAmount, 0.f, MaxHealth);
+
+    if (FMath::IsNearlyEqual(NewHealth, CurrentHealth))
+    {
+        if (const auto* World = GetWorld(); IsValid(World))
+        {
+            GetWorld()->GetTimerManager().ClearTimer(HealthTimerHandle);
+        }
+
+        return;
+    }
+
+    SetHealth(NewHealth);
+}
+
+void USTUHealthComponent::SetHealth(const float NewHealth)
+{
+    CurrentHealth = FMath::Clamp(NewHealth, 0.f, MaxHealth);
+    OnHealthChanged.Broadcast(CurrentHealth);
 }

@@ -130,6 +130,11 @@ void ASTUCharacterBase::OnDeath()
     }
 
     SetLifeSpan(5.f);
+
+    if (IsValid(Controller))
+    {
+        Controller->ChangeState(NAME_Spectating);
+    }
 }
 
 void ASTUCharacterBase::OnHealthChanged(const float CurrentHealth)
