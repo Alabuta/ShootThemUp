@@ -48,7 +48,16 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category="Animation")
     TObjectPtr<UAnimMontage> DeathAnimMontage;
 
-	virtual void BeginPlay() override;
+    UPROPERTY(EditDefaultsOnly, Category="Animation")
+    FVector2D LandedDamageSpeed{900.f, 1200.f};
+
+    UPROPERTY(EditDefaultsOnly, Category="Animation")
+    FVector2D LandedDamage{10.f, 100.f};
+
+    virtual void BeginPlay() override;
+
+    UFUNCTION()
+    void OnGroundLanded(const FHitResult& HitResult);
 
 private:
 

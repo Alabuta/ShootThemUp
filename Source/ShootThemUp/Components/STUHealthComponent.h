@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "EditorMetadataOverrides.h"
 #include "Components/ActorComponent.h"
 #include "STUHealthComponent.generated.h"
 

@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/TextRenderComponent.h"
+#include "Engine/DamageEvents.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Logging/StructuredLog.h"
@@ -35,6 +36,8 @@ ASTUCharacterBase::ASTUCharacterBase(const FObjectInitializer& ObjectInitializer
         HealthComponent->OnDeath.AddUObject(this, &ThisClass::OnDeath);
         HealthComponent->OnHealthChanged.AddUObject(this, &ThisClass::OnHealthChanged);
     }
+
+    LandedDelegate.AddDynamic(this, &ThisClass::OnGroundLanded);
 
     HealthRenderComponent = CreateDefaultSubobject<UTextRenderComponent>(TEXT("HealthRenderComponent"));
     HealthRenderComponent->SetupAttachment(GetRootComponent());
@@ -143,4 +146,23 @@ void ASTUCharacterBase::OnHealthChanged(const float CurrentHealth)
     {
         HealthRenderComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), CurrentHealth)));
     }
+}
+
+void ASTUCharacterBase::OnGroundLanded(const FHitResult& HitResult)
+{
+    const auto* MovementComponent = GetCharacterMovement();
+    const auto FallSpeed = FMath::Abs(MovementComponent->Velocity.  Z);
+
+    if (FallSpeed < LandedDamageSpeed.X)
+    {
+        return;
+    }
+
+    const auto FinalDamage = FMath::GetMappedRangeValueClamped(
+        LandedDamageSpeed,
+        LandedDamage,
+        FallSpeed
+    );
+
+    TakeDamage(FinalDamage, FDamageEvent{}, nullptr, nullptr);
 }
