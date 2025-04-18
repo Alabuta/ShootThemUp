@@ -5,6 +5,7 @@
 
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Engine/DamageEvents.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -12,6 +13,7 @@
 #include "Logging/StructuredLog.h"
 #include "ShootThemUp/Components/STUCharacterMovementComponent.h"
 #include "ShootThemUp/Components/STUHealthComponent.h"
+#include "ShootThemUp/Weapon/STUWeaponBase.h"
 
 
 DEFINE_LOG_CATEGORY_STATIC(LogSTUCharacterBase, All, All);
@@ -56,6 +58,8 @@ void ASTUCharacterBase::BeginPlay()
     {
         OnHealthChanged(HealthComponent->GetHealth());
     }
+
+    SpawnWeapon();
 }
 
 void ASTUCharacterBase::Tick(float DeltaTime)
@@ -146,6 +150,24 @@ void ASTUCharacterBase::OnHealthChanged(const float CurrentHealth)
     {
         HealthRenderComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), CurrentHealth)));
     }
+}
+
+void ASTUCharacterBase::SpawnWeapon()
+{
+    auto* World = GetWorld();
+    if (!IsValid(World))
+    {
+        return;
+    }
+
+    auto* Weapon = World->SpawnActor<ASTUWeaponBase>(WeaponClass);
+    if (!IsValid(Weapon))
+    {
+        return;
+    }
+
+    const FAttachmentTransformRules AttachmentRules{EAttachmentRule::SnapToTarget, false};
+    Weapon->AttachToComponent(GetMesh(), AttachmentRules, FName{TEXTVIEW("RightWeaponSocket")});
 }
 
 void ASTUCharacterBase::OnGroundLanded(const FHitResult& HitResult)
