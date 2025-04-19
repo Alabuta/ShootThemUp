@@ -16,6 +16,8 @@ public:
 
     ASTUWeaponBase();
 
+    virtual void Fire();
+
 protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Components")

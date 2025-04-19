@@ -7,7 +7,7 @@
 #include "STUCharacterBase.generated.h"
 
 
-class ASTUWeaponBase;
+class USTUWeaponComponent;
 class UTextRenderComponent;
 class USTUHealthComponent;
 class UCameraComponent;
@@ -50,7 +50,7 @@ protected:
     TObjectPtr<UAnimMontage> DeathAnimMontage;
 
     UPROPERTY(EditDefaultsOnly, Category="Weapon")
-    TSubclassOf<ASTUWeaponBase> WeaponClass;
+    TObjectPtr<USTUWeaponComponent> WeaponComponent;
 
     UPROPERTY(EditDefaultsOnly, Category="Animation")
     FVector2D LandedDamageSpeed{900.f, 1200.f};
@@ -62,6 +62,9 @@ protected:
 
     UFUNCTION()
     void OnGroundLanded(const FHitResult& HitResult);
+
+    UFUNCTION()
+    void FireWeapon();
 
 private:
 
@@ -76,6 +79,4 @@ private:
 
     void OnDeath();
     void OnHealthChanged(const float CurrentHealth);
-
-    void SpawnWeapon();
 };
