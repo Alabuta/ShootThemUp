@@ -39,7 +39,7 @@ void USTUWeaponComponent::SpawnWeapon()
         return;
     }
 
-    const auto* OwnerCharacter = GetOwner<ACharacter>();
+    auto* OwnerCharacter = GetOwner<ACharacter>();
     if (!IsValid(OwnerCharacter))
     {
         return;
@@ -53,4 +53,5 @@ void USTUWeaponComponent::SpawnWeapon()
 
     const FAttachmentTransformRules AttachmentRules{EAttachmentRule::SnapToTarget, false};
     CurrentWeapon->AttachToComponent(OwnerCharacter->GetMesh(), AttachmentRules, AttachSocketName);
+    CurrentWeapon->SetOwner(OwnerCharacter);
 }

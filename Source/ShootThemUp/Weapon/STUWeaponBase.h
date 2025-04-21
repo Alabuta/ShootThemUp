@@ -23,5 +23,10 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Components")
     TObjectPtr<USkeletalMeshComponent> SkeletalMeshComponent;
 
+    UPROPERTY(VisibleDefaultsOnly, Category="Components")
+    FName MuzzleSocketName{TEXTVIEW("MuzzleSocket")};
+
     virtual void BeginPlay() override;
+
+    void MakeShot();
 };
