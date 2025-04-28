@@ -5,6 +5,7 @@
 
 #include "DrawDebugHelpers.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Engine/DamageEvents.h"
 #include "Engine/Engine.h"
 #include "GameFramework/Character.h"
 
@@ -38,45 +39,27 @@ void ASTUWeaponBase::MakeShot()
         return;
     }
 
-    const auto* OwnerCharacter = GetOwner<ACharacter>();
-    if (!IsValid(OwnerCharacter))
-    {
-        return;
-    }
-    
-    const auto* PlayerController = OwnerCharacter->GetController<APlayerController>();
+    const auto* PlayerController = GetPlayerController();
     if (!IsValid(PlayerController))
     {
         return;
     }
 
-    FVector PlayerViewPointLocation;
-    FRotator PlayerViewPointRotation;
+    const auto [TraceStart, TraceEnd] = GetTracePoints(PlayerController);
+    const auto HitResult = Trace(TraceStart, TraceEnd);
 
-    PlayerController->GetPlayerViewPoint(PlayerViewPointLocation, PlayerViewPointRotation);
+    if (!HitResult)
+    {
+        return;
+    }
 
-    const auto TraceStart = PlayerViewPointLocation;
-    const auto TraceEnd = TraceStart + PlayerViewPointRotation.Vector() * 10'000.f;
+    const auto MuzzleSocketLocation = GetMuzzleWorldLocation();
 
-    FHitResult HitResult;
-
-    FCollisionQueryParams QueryParams;
-    QueryParams.AddIgnoredActor(OwnerCharacter);
-
-    World->LineTraceSingleByChannel(
-        HitResult,
-        TraceStart,
-        TraceEnd,
-        ECollisionChannel::ECC_Visibility,
-        QueryParams);
-
-    const auto MuzzleSocketTransform = SkeletalMeshComponent->GetSocketTransform(MuzzleSocketName);
-
-    if (!HitResult.bBlockingHit)
+    if (!HitResult->bBlockingHit)
     {
         DrawDebugLine(
             World,
-            MuzzleSocketTransform.GetLocation(),
+            MuzzleSocketLocation,
             TraceEnd,
             FColor::Red,
             false,
@@ -88,10 +71,12 @@ void ASTUWeaponBase::MakeShot()
         return;
     }
 
+    MakeDamage(*HitResult);
+
     DrawDebugLine(
         World,
-        MuzzleSocketTransform.GetLocation(),
-        HitResult.ImpactPoint,
+        MuzzleSocketLocation,
+        HitResult->ImpactPoint,
         FColor::Red,
         false,
         3.f,
@@ -100,7 +85,7 @@ void ASTUWeaponBase::MakeShot()
 
     DrawDebugSphere(
         World,
-        HitResult.ImpactPoint,
+        HitResult->ImpactPoint,
         10.f,
         24,
         FColor::Orange,
@@ -111,5 +96,80 @@ void ASTUWeaponBase::MakeShot()
         -1,
         5.f,
         FColor::Red,
-        FString::Printf(TEXT("Bone: %s"), *HitResult.BoneName.ToString()));
+        FString::Printf(TEXT("Bone: %s"), *HitResult->BoneName.ToString()));
+}
+
+APlayerController* ASTUWeaponBase::GetPlayerController() const
+{
+    const auto* OwnerCharacter = GetOwner<ACharacter>();
+    if (!IsValid(OwnerCharacter))
+    {
+        return nullptr;
+    }
+
+    return OwnerCharacter->GetController<APlayerController>();
+}
+
+FVector ASTUWeaponBase::GetMuzzleWorldLocation() const
+{
+    return SkeletalMeshComponent->GetSocketLocation(MuzzleSocketName);
+}
+
+TOptional<FHitResult> ASTUWeaponBase::Trace(const FVector& TraceStart, const FVector& TraceEnd) const
+{
+    const auto* World = GetWorld();
+    if (!IsValid(World))
+    {
+        return {};
+    }
+
+    FHitResult HitResult;
+
+    FCollisionQueryParams QueryParams;
+    QueryParams.AddIgnoredActor(this);
+
+    World->LineTraceSingleByChannel(
+        HitResult,
+        TraceStart,
+        TraceEnd,
+        ECollisionChannel::ECC_Visibility,
+        QueryParams);
+
+    return HitResult;
+}
+
+void ASTUWeaponBase::MakeDamage(const FHitResult& HitResult)
+{
+    auto* DamagedActor = HitResult.GetActor();
+    if (!IsValid(DamagedActor))
+    {
+        return;
+    }
+
+    DamagedActor->TakeDamage(DamageAmount, FDamageEvent{}, GetPlayerController(), this);
+}
+
+TPair<FVector, FRotator> ASTUWeaponBase::GetPlayerViewPoint(const APlayerController* PlayerController)
+{
+    if (!IsValid(PlayerController))
+    {
+        return {};
+    }
+
+    FVector PlayerViewPointLocation;
+    FRotator PlayerViewPointRotation;
+
+    PlayerController->GetPlayerViewPoint(PlayerViewPointLocation, PlayerViewPointRotation);
+
+    return TPair<FVector, FRotator>{PlayerViewPointLocation, PlayerViewPointRotation};
+}
+
+TPair<FVector, FVector> ASTUWeaponBase::GetTracePoints(const APlayerController* PlayerController)
+{
+    const auto [PlayerViewPointLocation, PlayerViewPointRotation] = GetPlayerViewPoint(PlayerController);
+
+    const auto TraceStart = PlayerViewPointLocation;
+    const auto TraceEnd = TraceStart + PlayerViewPointRotation.Vector() * 10'000.f;
+
+    return TPair<FVector, FVector>{TraceStart, TraceEnd};
 }

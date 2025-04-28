@@ -4,6 +4,7 @@
 #include "STUCharacterBase.h"
 
 #include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/TextRenderComponent.h"
@@ -149,6 +150,8 @@ void ASTUCharacterBase::OnDeath()
     {
         Controller->ChangeState(NAME_Spectating);
     }
+
+    GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 }
 
 void ASTUCharacterBase::OnHealthChanged(const float CurrentHealth)

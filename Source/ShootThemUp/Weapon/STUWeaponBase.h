@@ -26,7 +26,21 @@ protected:
     UPROPERTY(VisibleDefaultsOnly, Category="Components")
     FName MuzzleSocketName{TEXTVIEW("MuzzleSocket")};
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+    float DamageAmount{10.f};
+
     virtual void BeginPlay() override;
 
     void MakeShot();
+
+private:
+
+    APlayerController* GetPlayerController() const;
+    FVector GetMuzzleWorldLocation() const;
+
+    TOptional<FHitResult> Trace(const FVector& TraceStart, const FVector& TraceEnd) const;
+    void MakeDamage(const FHitResult& HitResult);
+
+    static TPair<FVector, FRotator> GetPlayerViewPoint(const APlayerController* PlayerController);
+    static TPair<FVector, FVector> GetTracePoints(const APlayerController* PlayerController);
 };
