@@ -88,7 +88,8 @@ void ASTUCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     PlayerInputComponent->BindAction(TEXT("Run"), IE_Pressed, this, &ThisClass::OnStartRunning);
     PlayerInputComponent->BindAction(TEXT("Run"), IE_Released, this, &ThisClass::OnStopRunning);
 
-    PlayerInputComponent->BindAction(TEXT("Fire"), IE_Pressed, this, &ThisClass::FireWeapon);
+    PlayerInputComponent->BindAction(TEXT("Fire"), IE_Pressed, this, &ThisClass::StartFireWeapon);
+    PlayerInputComponent->BindAction(TEXT("Fire"), IE_Released, this, &ThisClass::StopFireWeapon);
 }
 
 bool ASTUCharacterBase::GetIsRunning() const
@@ -181,12 +182,22 @@ void ASTUCharacterBase::OnGroundLanded(const FHitResult& HitResult)
     TakeDamage(FinalDamage, FDamageEvent{}, nullptr, nullptr);
 }
 
-void ASTUCharacterBase::FireWeapon()
+void ASTUCharacterBase::StartFireWeapon()
 {
     if (!IsValid(WeaponComponent))
     {
         return;
     }
 
-    WeaponComponent->Fire();
+    WeaponComponent->StartFire();
+}
+
+void ASTUCharacterBase::StopFireWeapon()
+{
+    if (!IsValid(WeaponComponent))
+    {
+        return;
+    }
+
+    WeaponComponent->StopFire();
 }

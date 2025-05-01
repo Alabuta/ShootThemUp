@@ -64,7 +64,10 @@ protected:
     void OnGroundLanded(const FHitResult& HitResult);
 
     UFUNCTION()
-    void FireWeapon();
+    void StartFireWeapon();
+
+    UFUNCTION()
+    void StopFireWeapon();
 
 private:
 

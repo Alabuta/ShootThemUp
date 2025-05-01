@@ -11,12 +11,13 @@ UCLASS(Abstract)
 class SHOOTTHEMUP_API ASTUWeaponBase : public AActor
 {
     GENERATED_BODY()
-	
-public:	
+
+public:
 
     ASTUWeaponBase();
 
-    virtual void Fire();
+    virtual void StartFire() PURE_VIRTUAL(ASTUWeaponBase::StartFire,);
+    virtual void StopFire() PURE_VIRTUAL(ASTUWeaponBase::StopFire,);
 
 protected:
 
@@ -31,16 +32,14 @@ protected:
 
     virtual void BeginPlay() override;
 
-    void MakeShot();
-
-private:
-
     APlayerController* GetPlayerController() const;
     FVector GetMuzzleWorldLocation() const;
+    virtual TPair<FVector, FVector> GetTracePoints(const APlayerController* PlayerController) const;
+
+    virtual void MakeShot() PURE_VIRTUAL(ASTUWeaponBase::MakeShot,);
 
     TOptional<FHitResult> Trace(const FVector& TraceStart, const FVector& TraceEnd) const;
     void MakeDamage(const FHitResult& HitResult);
 
     static TPair<FVector, FRotator> GetPlayerViewPoint(const APlayerController* PlayerController);
-    static TPair<FVector, FVector> GetTracePoints(const APlayerController* PlayerController);
 };

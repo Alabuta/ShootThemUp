@@ -14,14 +14,24 @@ USTUWeaponComponent::USTUWeaponComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-void USTUWeaponComponent::Fire()
+void USTUWeaponComponent::StartFire()
 {
     if (!IsValid(CurrentWeapon))
     {
         return;
     }
 
-    CurrentWeapon->Fire();
+    CurrentWeapon->StartFire();
+}
+
+void USTUWeaponComponent::StopFire()
+{
+    if (!IsValid(CurrentWeapon))
+    {
+        return;
+    }
+
+    CurrentWeapon->StopFire();
 }
 
 void USTUWeaponComponent::BeginPlay()
