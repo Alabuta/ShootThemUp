@@ -6,6 +6,7 @@
 #include "STUWeaponBase.h"
 #include "STULauncherWeapon.generated.h"
 
+class ASTUProjectile;
 /**
  * 
  */
@@ -18,5 +19,11 @@ public:
 
     virtual void StartFire() override;
     virtual void StopFire() override;
-	
+
+protected:
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Weapon")
+    TSubclassOf<ASTUProjectile> ProjectileClass;
+
+    virtual void MakeShot() override;
 };
