@@ -5,6 +5,7 @@
 
 #include "DrawDebugHelpers.h"
 #include "TimerManager.h"
+#include "Engine/DamageEvents.h"
 #include "Engine/Engine.h"
 #include "Engine/HitResult.h"
 #include "GameFramework/PlayerController.h"
@@ -100,4 +101,15 @@ void ASTURifleWeapon::MakeShot()
         5.f,
         FColor::Red,
         FString::Printf(TEXT("Bone: %s"), *HitResult->BoneName.ToString()));
+}
+
+void ASTURifleWeapon::MakeDamage(const FHitResult& HitResult)
+{
+    auto* DamagedActor = HitResult.GetActor();
+    if (!IsValid(DamagedActor))
+    {
+        return;
+    }
+
+    DamagedActor->TakeDamage(DamageAmount, FDamageEvent{}, GetPlayerController(), this);
 }

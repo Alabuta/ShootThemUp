@@ -6,7 +6,6 @@
 #include "DrawDebugHelpers.h"
 #include "TimerManager.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "Engine/DamageEvents.h"
 #include "Engine/Engine.h"
 #include "GameFramework/Character.h"
 
@@ -72,17 +71,6 @@ TOptional<FHitResult> ASTUWeaponBase::Trace(const FVector& TraceStart, const FVe
         QueryParams);
 
     return HitResult;
-}
-
-void ASTUWeaponBase::MakeDamage(const FHitResult& HitResult)
-{
-    auto* DamagedActor = HitResult.GetActor();
-    if (!IsValid(DamagedActor))
-    {
-        return;
-    }
-
-    DamagedActor->TakeDamage(DamageAmount, FDamageEvent{}, GetPlayerController(), this);
 }
 
 TPair<FVector, FRotator> ASTUWeaponBase::GetPlayerViewPoint(const APlayerController* PlayerController)

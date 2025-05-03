@@ -23,15 +23,37 @@ public:
 
 protected:
 
-    UPROPERTY(VisibleDefaultsOnly, Category="Components")
+    UPROPERTY(VisibleAnywhere, Category="Components")
     TObjectPtr<USphereComponent> CollisionComponent;
 
-    UPROPERTY(VisibleDefaultsOnly, Category="Components")
+    UPROPERTY(VisibleAnywhere, Category="Components")
     TObjectPtr<UProjectileMovementComponent> MovementComponent;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Weapon")
+    float DamageRadius{200.f};
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Weapon")
+    float DamageAmount{50.f};
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Weapon")
+    float LifeSpan{5.f};
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Weapon")
+    uint8 bDoFullDamage : 1{false};
+
+    UFUNCTION()
+    void OnProjectileHit(
+        UPrimitiveComponent* HitComponent,
+        AActor* OtherActor,
+        UPrimitiveComponent* OtherComp,
+        FVector NormalImpulse,
+        const FHitResult& Hit);
 
 	virtual void BeginPlay() override;
 
 private:
 
     FVector LaunchDirection;
+
+    AController* GetCauserController() const;
 };

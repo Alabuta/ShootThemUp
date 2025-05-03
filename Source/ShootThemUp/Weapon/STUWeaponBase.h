@@ -27,9 +27,6 @@ protected:
     UPROPERTY(VisibleDefaultsOnly, Category="Components")
     FName MuzzleSocketName{TEXTVIEW("MuzzleSocket")};
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-    float DamageAmount{10.f};
-
     virtual void BeginPlay() override;
 
     APlayerController* GetPlayerController() const;
@@ -39,7 +36,6 @@ protected:
     virtual void MakeShot() PURE_VIRTUAL(ASTUWeaponBase::MakeShot,);
 
     TOptional<FHitResult> Trace(const FVector& TraceStart, const FVector& TraceEnd) const;
-    void MakeDamage(const FHitResult& HitResult);
 
     static TPair<FVector, FRotator> GetPlayerViewPoint(const APlayerController* PlayerController);
 };

@@ -3,8 +3,13 @@
 
 #include "STUProjectile.h"
 
+#include "DrawDebugHelpers.h"
 #include "Components/SphereComponent.h"
+#include "Engine/World.h"
+#include "GameFramework/DamageType.h"
+#include "GameFramework/Pawn.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Math/UnitConversion.h"
 
 
@@ -14,6 +19,8 @@ ASTUProjectile::ASTUProjectile()
 
     CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
     CollisionComponent->InitSphereRadius(5.f);
+    CollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+    CollisionComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
     SetRootComponent(CollisionComponent);
 
     MovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("MovementComponent"));
@@ -26,6 +33,45 @@ void ASTUProjectile::SetLaunchDirection(FVector Direction)
     LaunchDirection = MoveTemp(Direction);
 }
 
+void ASTUProjectile::OnProjectileHit(
+    UPrimitiveComponent* HitComponent,
+    AActor* OtherActor,
+    UPrimitiveComponent* OtherComp,
+    FVector NormalImpulse,
+    const FHitResult& Hit)
+{
+    const auto* World = GetWorld();
+    if (!IsValid(World))
+    {
+        return;
+    }
+
+    MovementComponent->StopMovementImmediately();
+
+    // :TODO: make damage
+    UGameplayStatics::ApplyRadialDamage(
+        World,
+        DamageAmount,
+        GetActorLocation(),
+        DamageRadius,
+        UDamageType::StaticClass(),
+        {GetOwner()},
+        this,
+        GetCauserController(),
+        bDoFullDamage);
+
+    DrawDebugSphere(
+        World,
+        GetActorLocation(),
+        DamageRadius,
+        24,
+        FColor::Red,
+        false,
+        5.f);
+
+    Destroy();
+}
+
 void ASTUProjectile::BeginPlay()
 {
 	Super::BeginPlay();
@@ -33,6 +79,19 @@ void ASTUProjectile::BeginPlay()
     check(IsValid(CollisionComponent));
     check(IsValid(MovementComponent));
 
+    CollisionComponent->OnComponentHit.AddDynamic(this, &ThisClass::OnProjectileHit);
+    CollisionComponent->IgnoreActorWhenMoving(GetOwner(), true);
+
     MovementComponent->Velocity = LaunchDirection * MovementComponent->InitialSpeed;
-    SetLifeSpan(5.f);
+    SetLifeSpan(LifeSpan);
+}
+
+AController* ASTUProjectile::GetCauserController() const
+{
+    if (const auto* OwnerPawn = GetOwner<APawn>(); !IsValid(OwnerPawn))
+    {
+        return OwnerPawn->GetController();
+    }
+
+    return nullptr;
 }

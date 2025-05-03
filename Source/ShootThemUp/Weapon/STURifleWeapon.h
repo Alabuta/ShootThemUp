@@ -27,6 +27,9 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Units="Degrees"))
     float BulletSpread{1.5f};
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+    float DamageAmount{10.f};
+
     virtual TPair<FVector, FVector> GetTracePoints(const APlayerController* PlayerController) const override;
 
     virtual void MakeShot() override;
@@ -34,4 +37,6 @@ protected:
 private:
 
     FTimerHandle ShotTimerHandle;
+
+    void MakeDamage(const FHitResult& HitResult);
 };
