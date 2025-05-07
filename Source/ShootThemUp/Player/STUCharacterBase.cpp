@@ -90,6 +90,8 @@ void ASTUCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
     PlayerInputComponent->BindAction(TEXT("Fire"), IE_Pressed, this, &ThisClass::StartFireWeapon);
     PlayerInputComponent->BindAction(TEXT("Fire"), IE_Released, this, &ThisClass::StopFireWeapon);
+
+    PlayerInputComponent->BindAction(TEXT("NextWeapon"), IE_Pressed, this, &ThisClass::NextWeapon);
 }
 
 bool ASTUCharacterBase::GetIsRunning() const
@@ -143,6 +145,11 @@ void ASTUCharacterBase::OnDeath()
     if (auto* MovementComponent = GetCharacterMovement(); IsValid(MovementComponent))
     {
         MovementComponent->DisableMovement();
+    }
+
+    if (IsValid(WeaponComponent))
+    {
+        WeaponComponent->StopFire();
     }
 
     SetLifeSpan(5.f);
@@ -200,4 +207,14 @@ void ASTUCharacterBase::StopFireWeapon()
     }
 
     WeaponComponent->StopFire();
+}
+
+void ASTUCharacterBase::NextWeapon()
+{
+    if (!IsValid(WeaponComponent))
+    {
+        return;
+    }
+
+    WeaponComponent->NextWeapon();
 }

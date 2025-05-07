@@ -69,6 +69,9 @@ protected:
     UFUNCTION()
     void StopFireWeapon();
 
+    UFUNCTION()
+    void NextWeapon();
+
 private:
 
     uint8 bMovingForward : 1 {false};
