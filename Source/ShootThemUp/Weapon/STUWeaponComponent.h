@@ -19,6 +19,7 @@ public:
 
 	USTUWeaponComponent();
 
+    virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
     void StartFire();
@@ -36,7 +37,8 @@ protected:
     UPROPERTY(VisibleDefaultsOnly, Category="Weapon")
     FName WeaponArmorySocketName{TEXTVIEW("ArmorySocket")};
 
-    virtual void BeginPlay() override;
+    UPROPERTY(EditDefaultsOnly, Category="Animation")
+    TObjectPtr<UAnimMontage> EquipAnimMontage;
 
 private:
 
@@ -48,8 +50,17 @@ private:
 
     int32 CurrentWeaponIndex{0};
 
+    uint8 bIsEquipInProgress : 1{false};
+
+    bool CanFire() const;
+    bool CanEquip() const;
+
     void SpawnWeapons();
     void EquipWeapon(const int32 WeaponIndex);
+    void OnEquipFinished(USkeletalMeshComponent* MeshComp);
+
+    void InitAnimations();
+    void PlayAnimMontage(UAnimMontage* AnimMontage) const;
 
     static void AttachWeaponToSocket(ASTUWeaponBase* Weapon, USceneComponent* AttachComponent, FName SocketName);
 };

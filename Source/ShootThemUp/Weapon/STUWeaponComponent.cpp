@@ -4,14 +4,26 @@
 #include "STUWeaponComponent.h"
 
 #include "STUWeaponBase.h"
+#include "Animation/AnimMontage.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/World.h"
 #include "GameFramework/Character.h"
+#include "ShootThemUp/Animations/STUAnimNotify_EquipFinished.h"
 
 
 USTUWeaponComponent::USTUWeaponComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+}
+
+void USTUWeaponComponent::BeginPlay()
+{
+    Super::BeginPlay();
+
+    CurrentWeaponIndex = 0;
+    InitAnimations();
+    SpawnWeapons();
+    EquipWeapon(0);
 }
 
 void USTUWeaponComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -33,7 +45,7 @@ void USTUWeaponComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void USTUWeaponComponent::StartFire()
 {
-    if (!IsValid(CurrentWeapon))
+    if (!CanFire())
     {
         return;
     }
@@ -53,16 +65,23 @@ void USTUWeaponComponent::StopFire()
 
 void USTUWeaponComponent::NextWeapon()
 {
+    if (!CanEquip())
+    {
+        return;
+    }
+
     CurrentWeaponIndex = (CurrentWeaponIndex + 1) % Weapons.Num();
     EquipWeapon(CurrentWeaponIndex);
 }
 
-void USTUWeaponComponent::BeginPlay()
+bool USTUWeaponComponent::CanFire() const
 {
-	Super::BeginPlay();
+    return IsValid(CurrentWeapon) && !bIsEquipInProgress;
+}
 
-    SpawnWeapons();
-    EquipWeapon(0);
+bool USTUWeaponComponent::CanEquip() const
+{
+    return !bIsEquipInProgress;
 }
 
 void USTUWeaponComponent::SpawnWeapons()
@@ -117,6 +136,60 @@ void USTUWeaponComponent::EquipWeapon(const int32 WeaponIndex)
 
     CurrentWeapon = Weapons[WeaponIndex];
     AttachWeaponToSocket(CurrentWeapon, OwnerCharacter->GetMesh(), WeaponEquipSocketName);
+
+    bIsEquipInProgress = true;
+    PlayAnimMontage(EquipAnimMontage);
+}
+
+void USTUWeaponComponent::OnEquipFinished(USkeletalMeshComponent* MeshComp)
+{
+    const auto* OwnerCharacter = GetOwner<ACharacter>();
+    if (!IsValid(OwnerCharacter))
+    {
+        return;
+    }
+
+    if (!IsValid(MeshComp) || OwnerCharacter->GetMesh() != MeshComp)
+    {
+        return;
+    }
+
+    bIsEquipInProgress = false;
+    
+}
+
+void USTUWeaponComponent::PlayAnimMontage(UAnimMontage* AnimMontage) const
+{
+    auto* OwnerCharacter = GetOwner<ACharacter>();
+    if (!IsValid(OwnerCharacter))
+    {
+        return;
+    }
+
+    OwnerCharacter->PlayAnimMontage(AnimMontage);
+}
+
+void USTUWeaponComponent::InitAnimations()
+{
+    if (!IsValid(EquipAnimMontage))
+    {
+        return;
+    }
+
+    const auto* AnimNotifyEvent = EquipAnimMontage->Notifies.FindByPredicate(
+        [](const FAnimNotifyEvent& NotifyEvent)
+        {
+            return NotifyEvent.Notify.IsA<USTUAnimNotify_EquipFinished>();
+        });
+
+    auto* EquipFinishedNotify = Cast<USTUAnimNotify_EquipFinished>(
+        AnimNotifyEvent != nullptr ? AnimNotifyEvent->Notify : nullptr);
+    if (!IsValid(EquipFinishedNotify))
+    {
+        return;
+    }
+
+    EquipFinishedNotify->OnNotified.AddUObject(this, &USTUWeaponComponent::OnEquipFinished);
 }
 
 void USTUWeaponComponent::AttachWeaponToSocket(
