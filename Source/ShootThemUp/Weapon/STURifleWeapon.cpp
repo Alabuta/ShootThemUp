@@ -37,6 +37,12 @@ TPair<FVector, FVector> ASTURifleWeapon::GetTracePoints(const APlayerController*
 
 void ASTURifleWeapon::MakeShot()
 {
+    if (IsAmmoEmpty())
+    {
+        StopFire();
+        return;
+    }
+
     const auto* World = GetWorld();
     if (!IsValid(World))
     {
@@ -54,6 +60,7 @@ void ASTURifleWeapon::MakeShot()
 
     if (!HitResult)
     {
+        StopFire();
         return;
     }
 
@@ -76,6 +83,8 @@ void ASTURifleWeapon::MakeShot()
     }
 
     MakeDamage(*HitResult);
+
+    DecreaseAmmo();
 
     DrawDebugLine(
         World,

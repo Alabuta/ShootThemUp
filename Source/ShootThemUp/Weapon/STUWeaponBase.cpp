@@ -8,7 +8,9 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/Engine.h"
 #include "GameFramework/Character.h"
+#include "Logging/StructuredLog.h"
 
+DEFINE_LOG_CATEGORY_STATIC(LogSTUBaseWeapon, All, All);
 
 ASTUWeaponBase::ASTUWeaponBase()
 {
@@ -22,6 +24,8 @@ void ASTUWeaponBase::BeginPlay()
 {
 	Super::BeginPlay();
     check(IsValid(SkeletalMeshComponent));
+
+    CurrentAmmoData = DefaultAmmoData;
 }
 
 APlayerController* ASTUWeaponBase::GetPlayerController() const
@@ -71,6 +75,38 @@ TOptional<FHitResult> ASTUWeaponBase::Trace(const FVector& TraceStart, const FVe
         QueryParams);
 
     return HitResult;
+}
+
+void ASTUWeaponBase::DecreaseAmmo()
+{
+    CurrentAmmoData.Bullets = FMath::Max(CurrentAmmoData.Bullets - 1, 0);
+    LogAmmo();
+
+    if (IsClipEmpty() && !IsAmmoEmpty())
+    {
+        ChangeClip();
+    }
+}
+
+void ASTUWeaponBase::ChangeClip()
+{
+    CurrentAmmoData.Bullets = DefaultAmmoData.Bullets;
+
+    if (!CurrentAmmoData.bInfinite)
+    {
+        CurrentAmmoData.Clips = FMath::Max(CurrentAmmoData.Clips - 1, 0);
+    }
+
+    UE_LOGFMT(LogSTUBaseWeapon, Display, "Clip changed! Clips left: {0}", CurrentAmmoData.Clips);
+}
+
+void ASTUWeaponBase::LogAmmo()
+{
+    const auto AmmoInfo = FString::Printf(
+        TEXT("Ammo: %d/%d"),
+        CurrentAmmoData.Bullets,
+        CurrentAmmoData.bInfinite ? -1 : CurrentAmmoData.Clips);
+    UE_LOGFMT(LogSTUBaseWeapon, Display, "{0}", *AmmoInfo);
 }
 
 TPair<FVector, FRotator> ASTUWeaponBase::GetPlayerViewPoint(const APlayerController* PlayerController)

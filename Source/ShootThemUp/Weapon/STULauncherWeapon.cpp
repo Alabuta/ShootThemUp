@@ -19,6 +19,12 @@ void ASTULauncherWeapon::StopFire()
 
 void ASTULauncherWeapon::MakeShot()
 {
+    if (IsAmmoEmpty())
+    {
+        StopFire();
+        return;
+    }
+
     if (!IsValid(ProjectileClass))
     {
         return;
@@ -54,4 +60,6 @@ void ASTULauncherWeapon::MakeShot()
     Projectile->SetOwner(GetOwner());
 
     Projectile->FinishSpawning(SpawnTransform);
+
+    DecreaseAmmo();
 }
