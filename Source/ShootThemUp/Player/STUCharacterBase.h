@@ -72,6 +72,9 @@ protected:
     UFUNCTION()
     void NextWeapon();
 
+    UFUNCTION()
+    void Reload();
+
 private:
 
     uint8 bMovingForward : 1 {false};

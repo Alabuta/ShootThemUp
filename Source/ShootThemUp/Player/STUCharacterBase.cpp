@@ -92,6 +92,8 @@ void ASTUCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     PlayerInputComponent->BindAction(TEXT("Fire"), IE_Released, this, &ThisClass::StopFireWeapon);
 
     PlayerInputComponent->BindAction(TEXT("NextWeapon"), IE_Pressed, this, &ThisClass::NextWeapon);
+
+    PlayerInputComponent->BindAction(TEXT("Reload"), IE_Pressed, this, &ThisClass::Reload);
 }
 
 bool ASTUCharacterBase::GetIsRunning() const
@@ -217,4 +219,14 @@ void ASTUCharacterBase::NextWeapon()
     }
 
     WeaponComponent->NextWeapon();
+}
+
+void ASTUCharacterBase::Reload()
+{
+    if (!IsValid(WeaponComponent))
+    {
+        return;
+    }
+
+    WeaponComponent->Reload();
 }
