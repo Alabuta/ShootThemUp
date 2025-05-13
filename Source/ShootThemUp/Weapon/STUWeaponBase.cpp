@@ -20,10 +20,36 @@ ASTUWeaponBase::ASTUWeaponBase()
 	PrimaryActorTick.bCanEverTick = false;
 }
 
+bool ASTUWeaponBase::CanReload() const
+{
+    return CurrentAmmoData.Bullets < DefaultAmmoData.Bullets && CurrentAmmoData.Clips > 0;
+}
+
+void ASTUWeaponBase::ChangeClip()
+{
+    if (!CurrentAmmoData.bInfinite)
+    {
+        if (CurrentAmmoData.Clips <= 0)
+        {
+            UE_LOGFMT(LogSTUBaseWeapon, Display, "No clips left!");
+            return;
+        }
+
+        CurrentAmmoData.Clips = FMath::Max(CurrentAmmoData.Clips - 1, 0);
+    }
+
+    CurrentAmmoData.Bullets = DefaultAmmoData.Bullets;
+
+    UE_LOGFMT(LogSTUBaseWeapon, Display, "Clip changed! Clips left: {0}", CurrentAmmoData.Clips);
+}
+
 void ASTUWeaponBase::BeginPlay()
 {
 	Super::BeginPlay();
+
     check(IsValid(SkeletalMeshComponent));
+    checkf(DefaultAmmoData.Bullets > 0, TEXT("Bullets count must be greater than 0!"));
+    checkf(DefaultAmmoData.Clips > 0, TEXT("Clips count must be greater than 0!"));
 
     CurrentAmmoData = DefaultAmmoData;
 }
@@ -79,25 +105,20 @@ TOptional<FHitResult> ASTUWeaponBase::Trace(const FVector& TraceStart, const FVe
 
 void ASTUWeaponBase::DecreaseAmmo()
 {
+    if (CurrentAmmoData.Bullets <= 0)
+    {
+        UE_LOGFMT(LogSTUBaseWeapon, Display, "Clip is empty!");
+        return;
+    }
+
     CurrentAmmoData.Bullets = FMath::Max(CurrentAmmoData.Bullets - 1, 0);
     LogAmmo();
 
     if (IsClipEmpty() && !IsAmmoEmpty())
     {
-        ChangeClip();
+        StopFire();
+        OnClipEmpty.Broadcast();
     }
-}
-
-void ASTUWeaponBase::ChangeClip()
-{
-    CurrentAmmoData.Bullets = DefaultAmmoData.Bullets;
-
-    if (!CurrentAmmoData.bInfinite)
-    {
-        CurrentAmmoData.Clips = FMath::Max(CurrentAmmoData.Clips - 1, 0);
-    }
-
-    UE_LOGFMT(LogSTUBaseWeapon, Display, "Clip changed! Clips left: {0}", CurrentAmmoData.Clips);
 }
 
 void ASTUWeaponBase::LogAmmo()

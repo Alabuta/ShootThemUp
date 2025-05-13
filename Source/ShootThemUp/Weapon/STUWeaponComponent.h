@@ -57,6 +57,8 @@ protected:
 
 private:
 
+    static constexpr int32 WeaponNum{2};
+
     UPROPERTY(Transient)
     ASTUWeaponBase* CurrentWeapon{nullptr};
 
@@ -77,15 +79,15 @@ private:
 
     void SpawnWeapons();
     void EquipWeapon(const int32 WeaponIndex);
+    void ChangeClip();
 
     void OnEquipFinished(USkeletalMeshComponent* MeshComp);
     void OnReloadFinished(USkeletalMeshComponent* MeshComp);
+
+    void OnEmptyClip();
 
     void InitAnimations();
     void PlayAnimMontage(UAnimMontage* AnimMontage) const;
 
     static void AttachWeaponToSocket(ASTUWeaponBase* Weapon, USceneComponent* AttachComponent, FName SocketName);
-
-    template <class T>
-    static T* FindFirstAnimNotify(const UAnimSequenceBase* AnimSequence);
 };

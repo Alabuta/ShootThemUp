@@ -16,15 +16,15 @@ class SHOOTTHEMUP_API USTUHealthComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-    DECLARE_MULTICAST_DELEGATE(FOnDeath);
-    DECLARE_MULTICAST_DELEGATE_OneParam(FOnHealthChanged, const float);
+    DECLARE_MULTICAST_DELEGATE(FOnDeathSignature);
+    DECLARE_MULTICAST_DELEGATE_OneParam(FOnHealthChangedSignature, const float);
 
 public:
 
 	USTUHealthComponent();
 
-    FOnDeath OnDeath;
-    FOnHealthChanged OnHealthChanged;
+    FOnDeathSignature OnDeath;
+    FOnHealthChangedSignature OnHealthChanged;
 
     UFUNCTION(BlueprintPure, Category="Health")
     float GetHealth() const;

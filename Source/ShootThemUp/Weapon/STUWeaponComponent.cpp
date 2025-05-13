@@ -8,8 +8,13 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/World.h"
 #include "GameFramework/Character.h"
+#include "Logging/StructuredLog.h"
 #include "ShootThemUp/Animations/STUAnimNotify_EquipFinished.h"
 #include "ShootThemUp/Animations/STUAnimNotify_ReloadFinished.h"
+#include "ShootThemUp/Animations/STUAnimUtils.h"
+
+
+DEFINE_LOG_CATEGORY_STATIC(LogSTUWeaponComponent, All, All);
 
 
 USTUWeaponComponent::USTUWeaponComponent()
@@ -20,6 +25,8 @@ USTUWeaponComponent::USTUWeaponComponent()
 void USTUWeaponComponent::BeginPlay()
 {
     Super::BeginPlay();
+
+    checkf(WeaponData.Num() == WeaponNum, TEXT("Character must have %d weapons!"), WeaponNum);
 
     CurrentWeaponIndex = 0;
     InitAnimations();
@@ -79,15 +86,7 @@ void USTUWeaponComponent::NextWeapon()
 
 void USTUWeaponComponent::Reload()
 {
-    if (!CanReload())
-    {
-        return;
-    }
-
-    StopFire();
-
-    bIsReloadInProgress = true;
-    PlayAnimMontage(CurrentReloadAnimMontage);
+    ChangeClip();
 }
 
 bool USTUWeaponComponent::CanFire() const
@@ -102,7 +101,7 @@ bool USTUWeaponComponent::CanEquip() const
 
 bool USTUWeaponComponent::CanReload() const
 {
-    return IsValid(CurrentWeapon) &&!bIsEquipInProgress && !bIsReloadInProgress;
+    return IsValid(CurrentWeapon) &&!bIsEquipInProgress && !bIsReloadInProgress && CurrentWeapon->CanReload();
 }
 
 void USTUWeaponComponent::SpawnWeapons()
@@ -130,6 +129,7 @@ void USTUWeaponComponent::SpawnWeapons()
         }
 
         Weapon->SetOwner(OwnerCharacter);
+        Weapon->OnClipEmpty.AddUObject(this, &USTUWeaponComponent::OnEmptyClip);
         Weapons.Add(Weapon);
 
         AttachWeaponToSocket(Weapon, OwnerCharacter->GetMesh(), WeaponArmorySocketName);
@@ -172,6 +172,23 @@ void USTUWeaponComponent::EquipWeapon(const int32 WeaponIndex)
     PlayAnimMontage(EquipAnimMontage);
 }
 
+void USTUWeaponComponent::ChangeClip()
+{
+    if (!CanReload())
+    {
+        return;
+    }
+
+    if (IsValid(CurrentWeapon))
+    {
+        CurrentWeapon->StopFire();
+        CurrentWeapon->ChangeClip();
+    }
+
+    bIsReloadInProgress = true;
+    PlayAnimMontage(CurrentReloadAnimMontage);
+}
+
 void USTUWeaponComponent::OnEquipFinished(USkeletalMeshComponent* MeshComp)
 {
     const auto* OwnerCharacter = GetOwner<ACharacter>();
@@ -204,6 +221,11 @@ void USTUWeaponComponent::OnReloadFinished(USkeletalMeshComponent* MeshComp)
     bIsReloadInProgress = false;
 }
 
+void USTUWeaponComponent::OnEmptyClip()
+{
+    ChangeClip();
+}
+
 void USTUWeaponComponent::PlayAnimMontage(UAnimMontage* AnimMontage) const
 {
     auto* OwnerCharacter = GetOwner<ACharacter>();
@@ -222,18 +244,24 @@ void USTUWeaponComponent::InitAnimations()
         return;
     }
 
-    if (auto* EquipFinishedNotify = FindFirstAnimNotify<USTUAnimNotify_EquipFinished>(EquipAnimMontage);
+    if (auto* EquipFinishedNotify = FTUAnimUtils::FindFirstAnimNotify<USTUAnimNotify_EquipFinished>(EquipAnimMontage);
         IsValid(EquipFinishedNotify))
     {
         EquipFinishedNotify->OnNotified.AddUObject(this, &USTUWeaponComponent::OnEquipFinished);
     }
+    else
+    {
+        UE_LOGFMT(LogSTUWeaponComponent, Display, "Invalid USTUAnimNotify_EquipFinished!");
+        checkNoEntry();
+    }
 
     for (const auto& Data : WeaponData)
     {
-        auto* ReloadFinishedNotify = FindFirstAnimNotify<USTUAnimNotify_ReloadFinished>(Data.ReloadAnimMontage);
+        auto* ReloadFinishedNotify = FTUAnimUtils::FindFirstAnimNotify<USTUAnimNotify_ReloadFinished>(Data.ReloadAnimMontage);
         if (!IsValid(ReloadFinishedNotify))
         {
-            continue;
+            UE_LOGFMT(LogSTUWeaponComponent, Display, "Invalid USTUAnimNotify_ReloadFinished!");
+            checkNoEntry();
         }
 
         ReloadFinishedNotify->OnNotified.AddUObject(this, &USTUWeaponComponent::OnReloadFinished);
@@ -252,21 +280,4 @@ void USTUWeaponComponent::AttachWeaponToSocket(
 
     const FAttachmentTransformRules AttachmentRules{EAttachmentRule::SnapToTarget, false};
     Weapon->AttachToComponent(AttachComponent, AttachmentRules, SocketName);
-}
-
-template <class T>
-T* USTUWeaponComponent::FindFirstAnimNotify(const UAnimSequenceBase* AnimSequence)
-{
-    if (!IsValid(AnimSequence))
-    {
-        return nullptr;
-    }
-
-    const FAnimNotifyEvent* AnimNotifyEvent = AnimSequence->Notifies.FindByPredicate(
-       [](const FAnimNotifyEvent& NotifyEvent)
-       {
-           return NotifyEvent.Notify.IsA<T>();
-       });
-
-    return Cast<T>(AnimNotifyEvent != nullptr ? AnimNotifyEvent->Notify : nullptr);
 }

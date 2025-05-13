@@ -7,6 +7,8 @@
 #include "STUWeaponBase.generated.h"
 
 
+DECLARE_MULTICAST_DELEGATE(FOnClipEmptySignature);
+
 USTRUCT(BlueprintType)
 struct FSTUAmmoData
 {
@@ -29,10 +31,16 @@ class SHOOTTHEMUP_API ASTUWeaponBase : public AActor
 
 public:
 
+    FOnClipEmptySignature OnClipEmpty;
+
     ASTUWeaponBase();
+
+    bool CanReload() const;
 
     virtual void StartFire() PURE_VIRTUAL(ASTUWeaponBase::StartFire,);
     virtual void StopFire() PURE_VIRTUAL(ASTUWeaponBase::StopFire,);
+
+    void ChangeClip();
 
 protected:
 
@@ -59,7 +67,6 @@ protected:
     TOptional<FHitResult> Trace(const FVector& TraceStart, const FVector& TraceEnd) const;
 
     void DecreaseAmmo();
-    void ChangeClip();
     void LogAmmo();
 
     static TPair<FVector, FRotator> GetPlayerViewPoint(const APlayerController* PlayerController);
