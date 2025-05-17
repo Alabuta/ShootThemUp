@@ -30,6 +30,9 @@ public:
     float GetHealth() const;
 
     UFUNCTION(BlueprintPure, Category="Health")
+    float GetHealthPercent() const;
+
+    UFUNCTION(BlueprintPure, Category="Health")
     bool IsDead() const;
 
 protected:
@@ -72,4 +75,9 @@ private:
 inline float USTUHealthComponent::GetHealth() const
 {
     return CurrentHealth;
+}
+
+inline float USTUHealthComponent::GetHealthPercent() const
+{
+    return CurrentHealth / MaxHealth;
 }
