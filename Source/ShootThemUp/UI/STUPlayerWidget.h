@@ -7,6 +7,7 @@
 #include "STUPlayerWidget.generated.h"
 
 
+struct FSTUWeaponUIData;
 /**
  * 
  */
@@ -19,4 +20,7 @@ public:
 
     UFUNCTION(BlueprintPure, Category="UI")
     float GetHealthPercent() const;
+
+    UFUNCTION(BlueprintPure, Category="UI")
+    bool GetWeaponUIData(FSTUWeaponUIData& UIData) const;
 };

@@ -24,6 +24,18 @@ struct FSTUAmmoData
     uint8 bInfinite : 1{false};
 };
 
+USTRUCT(BlueprintType)
+struct FSTUWeaponUIData
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="UI")
+    TObjectPtr<UTexture2D> MainIcon;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="UI")
+    TObjectPtr<UTexture2D> CrossHairIcon;
+};
+
 UCLASS(Abstract)
 class SHOOTTHEMUP_API ASTUWeaponBase : public AActor
 {
@@ -36,6 +48,8 @@ public:
     ASTUWeaponBase();
 
     bool CanReload() const;
+
+    FSTUWeaponUIData GetUIData() const;
 
     virtual void StartFire() PURE_VIRTUAL(ASTUWeaponBase::StartFire,);
     virtual void StopFire() PURE_VIRTUAL(ASTUWeaponBase::StopFire,);
@@ -52,6 +66,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, Category="Weapon")
     FSTUAmmoData DefaultAmmoData{15, 10, false};
+
+    UPROPERTY(EditDefaultsOnly, Category="UI")
+    FSTUWeaponUIData UIData;
 
     virtual void BeginPlay() override;
 
@@ -75,6 +92,11 @@ private:
 
     FSTUAmmoData CurrentAmmoData;
 };
+
+inline FSTUWeaponUIData ASTUWeaponBase::GetUIData() const
+{
+    return UIData;
+}
 
 inline bool ASTUWeaponBase::IsAmmoEmpty() const
 {

@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/STUWeaponComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Engine/DamageEvents.h"
@@ -15,7 +16,6 @@
 #include "ShootThemUp/Components/STUCharacterMovementComponent.h"
 #include "ShootThemUp/Components/STUHealthComponent.h"
 #include "ShootThemUp/Weapon/STUWeaponBase.h"
-#include "ShootThemUp/Weapon/STUWeaponComponent.h"
 
 
 DEFINE_LOG_CATEGORY_STATIC(LogSTUCharacterBase, All, All);

@@ -3,6 +3,7 @@
 
 #include "STUPlayerWidget.h"
 
+#include "Components/STUWeaponComponent.h"
 #include "GameFramework/Pawn.h"
 #include "ShootThemUp/Components/STUHealthComponent.h"
 
@@ -22,4 +23,21 @@ float USTUPlayerWidget::GetHealthPercent() const
     }
 
     return HealthComponent->GetHealthPercent();
+}
+
+bool USTUPlayerWidget::GetWeaponUIData(FSTUWeaponUIData& UIData) const
+{
+    const auto* OwningPlayerPawn = GetOwningPlayerPawn();
+    if (!IsValid(OwningPlayerPawn))
+    {
+        return false;
+    }
+
+    const auto* WeaponComponent = OwningPlayerPawn->GetComponentByClass<USTUWeaponComponent>();
+    if (!IsValid(WeaponComponent))
+    {
+        return false;
+    }
+
+    return WeaponComponent->GetWeaponUIData(UIData);
 }
