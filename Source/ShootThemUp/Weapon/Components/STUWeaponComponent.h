@@ -8,6 +8,7 @@
 #include "STUWeaponComponent.generated.h"
 
 
+struct FSTUAmmoData;
 struct FSTUWeaponUIData;
 class ASTUWeaponBase;
 
@@ -42,7 +43,8 @@ public:
     void NextWeapon();
     void Reload();
 
-    bool GetWeaponUIData(FSTUWeaponUIData& UIData) const;
+    bool GetUIData(FSTUWeaponUIData& UIData) const;
+    bool GetAmmoData(FSTUAmmoData& AmmoData) const;
 
 protected:
 

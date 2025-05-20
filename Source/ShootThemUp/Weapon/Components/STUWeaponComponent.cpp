@@ -89,7 +89,7 @@ void USTUWeaponComponent::Reload()
     ChangeClip();
 }
 
-bool USTUWeaponComponent::GetWeaponUIData(FSTUWeaponUIData& UIData) const
+bool USTUWeaponComponent::GetUIData(FSTUWeaponUIData& UIData) const
 {
     if (!IsValid(CurrentWeapon))
     {
@@ -97,6 +97,17 @@ bool USTUWeaponComponent::GetWeaponUIData(FSTUWeaponUIData& UIData) const
     }
 
     UIData = CurrentWeapon->GetUIData();
+    return true;
+}
+
+bool USTUWeaponComponent::GetAmmoData(FSTUAmmoData& AmmoData) const
+{
+    if (!IsValid(CurrentWeapon))
+    {
+        return false;
+    }
+
+    AmmoData = CurrentWeapon->GetAmmoData();
     return true;
 }
 

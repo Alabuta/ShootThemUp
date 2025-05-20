@@ -49,7 +49,8 @@ public:
 
     bool CanReload() const;
 
-    FSTUWeaponUIData GetUIData() const;
+    const FSTUWeaponUIData& GetUIData() const;
+    const FSTUAmmoData& GetAmmoData() const;
 
     virtual void StartFire() PURE_VIRTUAL(ASTUWeaponBase::StartFire,);
     virtual void StopFire() PURE_VIRTUAL(ASTUWeaponBase::StopFire,);
@@ -93,9 +94,14 @@ private:
     FSTUAmmoData CurrentAmmoData;
 };
 
-inline FSTUWeaponUIData ASTUWeaponBase::GetUIData() const
+inline const FSTUWeaponUIData& ASTUWeaponBase::GetUIData() const
 {
     return UIData;
+}
+
+inline const FSTUAmmoData& ASTUWeaponBase::GetAmmoData() const
+{
+    return CurrentAmmoData;
 }
 
 inline bool ASTUWeaponBase::IsAmmoEmpty() const

@@ -25,19 +25,35 @@ float USTUPlayerWidget::GetHealthPercent() const
     return HealthComponent->GetHealthPercent();
 }
 
-bool USTUPlayerWidget::GetWeaponUIData(FSTUWeaponUIData& UIData) const
+bool USTUPlayerWidget::GetCurrentWeaponUIData(FSTUWeaponUIData& UIData) const
 {
-    const auto* OwningPlayerPawn = GetOwningPlayerPawn();
-    if (!IsValid(OwningPlayerPawn))
-    {
-        return false;
-    }
-
-    const auto* WeaponComponent = OwningPlayerPawn->GetComponentByClass<USTUWeaponComponent>();
+    const auto* WeaponComponent = GetWeaponComponent();
     if (!IsValid(WeaponComponent))
     {
         return false;
     }
 
-    return WeaponComponent->GetWeaponUIData(UIData);
+    return WeaponComponent->GetUIData(UIData);
+}
+
+bool USTUPlayerWidget::GetCurrentWeaponAmmoData(FSTUAmmoData& AmmoData) const
+{
+    const auto* WeaponComponent = GetWeaponComponent();
+    if (!IsValid(WeaponComponent))
+    {
+        return false;
+    }
+
+    return WeaponComponent->GetAmmoData(AmmoData);
+}
+
+const USTUWeaponComponent* USTUPlayerWidget::GetWeaponComponent() const
+{
+    const auto* OwningPlayerPawn = GetOwningPlayerPawn();
+    if (!IsValid(OwningPlayerPawn))
+    {
+        return nullptr;
+    }
+
+    return OwningPlayerPawn->GetComponentByClass<USTUWeaponComponent>();
 }
