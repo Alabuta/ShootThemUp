@@ -85,7 +85,6 @@ protected:
     TOptional<FHitResult> Trace(const FVector& TraceStart, const FVector& TraceEnd) const;
 
     void DecreaseAmmo();
-    void LogAmmo();
 
     static TPair<FVector, FRotator> GetPlayerViewPoint(const APlayerController* PlayerController);
 

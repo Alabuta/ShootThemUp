@@ -10,44 +10,36 @@
 
 float USTUPlayerWidget::GetHealthPercent() const
 {
-    const auto* OwningPlayerPawn = GetOwningPlayerPawn();
-    if (!IsValid(OwningPlayerPawn))
-    {
-        return 0.f;
-    }
-
-    const auto* HealthComponent = OwningPlayerPawn->GetComponentByClass<USTUHealthComponent>();
-    if (!IsValid(HealthComponent))
-    {
-        return 0.f;
-    }
-
-    return HealthComponent->GetHealthPercent();
+    const auto* HealthComponent = GetOwningPlayerComponent<USTUHealthComponent>();
+    return IsValid(HealthComponent) && HealthComponent->GetHealthPercent();
 }
 
 bool USTUPlayerWidget::GetCurrentWeaponUIData(FSTUWeaponUIData& UIData) const
 {
-    const auto* WeaponComponent = GetWeaponComponent();
-    if (!IsValid(WeaponComponent))
-    {
-        return false;
-    }
-
-    return WeaponComponent->GetUIData(UIData);
+    const auto* WeaponComponent = GetOwningPlayerComponent<USTUWeaponComponent>();
+    return IsValid(WeaponComponent) && WeaponComponent->GetUIData(UIData);
 }
 
 bool USTUPlayerWidget::GetCurrentWeaponAmmoData(FSTUAmmoData& AmmoData) const
 {
-    const auto* WeaponComponent = GetWeaponComponent();
-    if (!IsValid(WeaponComponent))
-    {
-        return false;
-    }
-
-    return WeaponComponent->GetAmmoData(AmmoData);
+    const auto* WeaponComponent = GetOwningPlayerComponent<USTUWeaponComponent>();
+    return IsValid(WeaponComponent) && WeaponComponent->GetAmmoData(AmmoData);
 }
 
-const USTUWeaponComponent* USTUPlayerWidget::GetWeaponComponent() const
+bool USTUPlayerWidget::IsPlayerAlive() const
+{
+    const auto* HealthComponent = GetOwningPlayerComponent<USTUHealthComponent>();
+    return IsValid(HealthComponent) && !HealthComponent->IsDead();
+}
+
+bool USTUPlayerWidget::IsPlayerSpectator() const
+{
+    const auto* PlayerController = GetOwningPlayer();
+    return IsValid(PlayerController) && PlayerController->GetStateName() == NAME_Spectating;
+}
+
+template <class T>
+T* USTUPlayerWidget::GetOwningPlayerComponent() const
 {
     const auto* OwningPlayerPawn = GetOwningPlayerPawn();
     if (!IsValid(OwningPlayerPawn))
@@ -55,5 +47,5 @@ const USTUWeaponComponent* USTUPlayerWidget::GetWeaponComponent() const
         return nullptr;
     }
 
-    return OwningPlayerPawn->GetComponentByClass<USTUWeaponComponent>();
+    return OwningPlayerPawn->GetComponentByClass<T>();
 }

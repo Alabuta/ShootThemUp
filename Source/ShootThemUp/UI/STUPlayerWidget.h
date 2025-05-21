@@ -7,7 +7,6 @@
 #include "STUPlayerWidget.generated.h"
 
 
-class USTUWeaponComponent;
 struct FSTUAmmoData;
 struct FSTUWeaponUIData;
 /**
@@ -29,7 +28,14 @@ public:
     UFUNCTION(BlueprintPure, Category="UI")
     bool GetCurrentWeaponAmmoData(FSTUAmmoData& AmmoData) const;
 
+    UFUNCTION(BlueprintPure, Category="UI")
+    bool IsPlayerAlive() const;
+
+    UFUNCTION(BlueprintPure, Category="UI")
+    bool IsPlayerSpectator() const;
+
 private:
 
-    const USTUWeaponComponent* GetWeaponComponent() const; 
+    template <class T>
+    T* GetOwningPlayerComponent() const;
 };

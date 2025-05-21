@@ -112,22 +112,12 @@ void ASTUWeaponBase::DecreaseAmmo()
     }
 
     CurrentAmmoData.Bullets = FMath::Max(CurrentAmmoData.Bullets - 1, 0);
-    LogAmmo();
 
     if (IsClipEmpty() && !IsAmmoEmpty())
     {
         StopFire();
         OnClipEmpty.Broadcast();
     }
-}
-
-void ASTUWeaponBase::LogAmmo()
-{
-    const auto AmmoInfo = FString::Printf(
-        TEXT("Ammo: %d/%d"),
-        CurrentAmmoData.Bullets,
-        CurrentAmmoData.bInfinite ? -1 : CurrentAmmoData.Clips);
-    UE_LOGFMT(LogSTUBaseWeapon, Display, "{0}", *AmmoInfo);
 }
 
 TPair<FVector, FRotator> ASTUWeaponBase::GetPlayerViewPoint(const APlayerController* PlayerController)
