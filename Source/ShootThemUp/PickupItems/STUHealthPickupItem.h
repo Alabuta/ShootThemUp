@@ -16,5 +16,8 @@ class SHOOTTHEMUP_API ASTUHealthPickupItem : public ASTUPickupItemBase
 
 protected:
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="PickupItem", meta=(ClampMin="1", ClampMax="100"))
+    float HealthAmount{100};
+
     virtual bool GivePickupItemTo(APawn* Pawn) override;
 };

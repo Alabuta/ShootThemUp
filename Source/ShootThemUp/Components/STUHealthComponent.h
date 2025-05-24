@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "ShootThemUp/PickupItems/STUHealthPickupItem.h"
 #include "STUHealthComponent.generated.h"
 
 
@@ -35,6 +36,8 @@ public:
     UFUNCTION(BlueprintPure, Category="Health")
     bool IsDead() const;
 
+    bool TryAddHealth(const float HealthAmount);
+
 protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Health", meta=(ClampMin="1", ClampMax="1000"))
@@ -61,6 +64,7 @@ protected:
         const UDamageType* DamageType,
         AController* InstigatedBy,
         AActor* DamageCauser);
+    bool IsHealthFull() const;
 
 private:
 
@@ -80,4 +84,9 @@ inline float USTUHealthComponent::GetHealth() const
 inline float USTUHealthComponent::GetHealthPercent() const
 {
     return CurrentHealth / MaxHealth;
+}
+
+inline bool USTUHealthComponent::IsHealthFull() const
+{
+    return FMath::IsNearlyEqual(CurrentHealth, MaxHealth);
 }

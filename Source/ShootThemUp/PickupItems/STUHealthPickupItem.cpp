@@ -4,6 +4,8 @@
 #include "STUHealthPickupItem.h"
 
 #include "GameFramework/Pawn.h"
+#include "ShootThemUp/Components/STUHealthComponent.h"
+#include "ShootThemUp/Player/FSTUUtils.h"
 
 
 bool ASTUHealthPickupItem::GivePickupItemTo(APawn* Pawn)
@@ -12,6 +14,12 @@ bool ASTUHealthPickupItem::GivePickupItemTo(APawn* Pawn)
     {
         return false;
     }
-    
-    return true;
+
+    auto* HealthComponent = FSTUUtils::GetPawnComponent<USTUHealthComponent>(Pawn);
+    if (!IsValid(HealthComponent) || HealthComponent->IsDead())
+    {
+        return false;
+    }
+
+    return HealthComponent->TryAddHealth(HealthAmount);
 }

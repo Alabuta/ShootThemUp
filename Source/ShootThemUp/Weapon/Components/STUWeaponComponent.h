@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "GameFramework/Character.h"
+#include "ShootThemUp/PickupItems/STUAmmoPickupItem.h"
 #include "STUWeaponComponent.generated.h"
 
 
@@ -45,6 +46,8 @@ public:
 
     bool GetUIData(FSTUWeaponUIData& UIData) const;
     bool GetAmmoData(FSTUAmmoData& AmmoData) const;
+
+    bool TryAddAmmo(TSubclassOf<ASTUWeaponBase> WeaponClass, const int32 ClipsAmount) const;
 
 protected:
 
@@ -89,7 +92,7 @@ private:
     void OnEquipFinished(USkeletalMeshComponent* MeshComp);
     void OnReloadFinished(USkeletalMeshComponent* MeshComp);
 
-    void OnEmptyClip();
+    void OnEmptyClip(ASTUWeaponBase* Weapon);
 
     void InitAnimations();
     void PlayAnimMontage(UAnimMontage* AnimMontage) const;

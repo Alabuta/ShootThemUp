@@ -7,7 +7,9 @@
 #include "STUWeaponBase.generated.h"
 
 
-DECLARE_MULTICAST_DELEGATE(FOnClipEmptySignature);
+class ASTUWeaponBase;
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnClipEmptySignature, ASTUWeaponBase*);
 
 USTRUCT(BlueprintType)
 struct FSTUAmmoData
@@ -52,10 +54,12 @@ public:
     const FSTUWeaponUIData& GetUIData() const;
     const FSTUAmmoData& GetAmmoData() const;
 
-    virtual void StartFire() PURE_VIRTUAL(ASTUWeaponBase::StartFire,);
+    virtual void StartFire() PURE_VIRTUAL(ASTUWeaponBase::StartFire,)
     virtual void StopFire() PURE_VIRTUAL(ASTUWeaponBase::StopFire,);
 
     void ChangeClip();
+
+    bool TryAddAmmo(const int32 ClipsAmount);
 
 protected:
 
@@ -77,6 +81,7 @@ protected:
     FVector GetMuzzleWorldLocation() const;
     virtual TPair<FVector, FVector> GetTracePoints(const APlayerController* PlayerController) const;
 
+    bool IsAmmoFull() const;
     bool IsAmmoEmpty() const;
     bool IsClipEmpty() const;
 
@@ -99,8 +104,15 @@ inline const FSTUWeaponUIData& ASTUWeaponBase::GetUIData() const
 }
 
 inline const FSTUAmmoData& ASTUWeaponBase::GetAmmoData() const
-{
+{   
     return CurrentAmmoData;
+}
+
+inline bool ASTUWeaponBase::IsAmmoFull() const
+{
+    return CurrentAmmoData.Clips == DefaultAmmoData.Clips && 
+           CurrentAmmoData.Bullets == DefaultAmmoData.Bullets /*&& 
+           !CurrentAmmoData.bInfinite*/;
 }
 
 inline bool ASTUWeaponBase::IsAmmoEmpty() const

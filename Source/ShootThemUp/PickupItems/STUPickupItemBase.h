@@ -34,6 +34,9 @@ protected:
 
 private:
 
+    float RotationYaw{0.f};
+
     void PickupItemWasTaken();
     void Respawn();
+    void GenerateRotationYaw();
 };

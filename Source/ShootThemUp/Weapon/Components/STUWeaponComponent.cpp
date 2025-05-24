@@ -111,6 +111,26 @@ bool USTUWeaponComponent::GetAmmoData(FSTUAmmoData& AmmoData) const
     return true;
 }
 
+bool USTUWeaponComponent::TryAddAmmo(TSubclassOf<ASTUWeaponBase> WeaponClass, const int32 ClipsAmount) const
+{
+    if (!IsValid(WeaponClass))
+    {
+        return false;
+    }
+
+    for (auto* Weapon : Weapons)
+    {
+        if (!IsValid(Weapon) || !Weapon->IsA(WeaponClass))
+        {
+            continue;
+        }
+
+        return Weapon->TryAddAmmo(ClipsAmount);
+    }
+
+    return false;
+}
+
 bool USTUWeaponComponent::CanFire() const
 {
     return IsValid(CurrentWeapon) && !bIsEquipInProgress && !bIsReloadInProgress;
@@ -243,9 +263,24 @@ void USTUWeaponComponent::OnReloadFinished(USkeletalMeshComponent* MeshComp)
     bIsReloadInProgress = false;
 }
 
-void USTUWeaponComponent::OnEmptyClip()
+void USTUWeaponComponent::OnEmptyClip(ASTUWeaponBase* Weapon)
 {
-    ChangeClip();
+    if (IsValid(Weapon))
+    {
+        return;
+    }
+
+    if (Weapon == CurrentWeapon)
+    {
+        ChangeClip();
+    }
+    else
+    {
+        if (Weapons.Contains(Weapon))
+        {
+            Weapon->ChangeClip();
+        }
+    }
 }
 
 void USTUWeaponComponent::PlayAnimMontage(UAnimMontage* AnimMontage) const

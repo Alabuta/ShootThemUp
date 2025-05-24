@@ -4,6 +4,7 @@
 #include "STUHealthComponent.h"
 
 #include "TimerManager.h"
+#include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "Logging/StructuredLog.h"
 #include "ShootThemUp/Player/STUCharacterBase.h"
@@ -17,6 +18,17 @@ USTUHealthComponent::USTUHealthComponent()
 bool USTUHealthComponent::IsDead() const
 {
     return FMath::IsNearlyZero(CurrentHealth);
+}
+
+bool USTUHealthComponent::TryAddHealth(const float HealthAmount)
+{
+    if (IsDead() || IsHealthFull())
+    {
+        return false;
+    }
+
+    SetHealth(CurrentHealth + HealthAmount);
+    return true;
 }
 
 void USTUHealthComponent::BeginPlay()
@@ -74,19 +86,15 @@ void USTUHealthComponent::OnTakeAnyDamage(
 
 void USTUHealthComponent::HealUpdate()
 {
-    const float NewHealth = FMath::Clamp(CurrentHealth + HealAmount, 0.f, MaxHealth);
+    SetHealth(CurrentHealth + HealAmount);
 
-    if (FMath::IsNearlyEqual(NewHealth, CurrentHealth))
+    if (IsHealthFull())
     {
         if (const auto* World = GetWorld(); IsValid(World))
         {
             GetWorld()->GetTimerManager().ClearTimer(HealthTimerHandle);
         }
-
-        return;
     }
-
-    SetHealth(NewHealth);
 }
 
 void USTUHealthComponent::SetHealth(const float NewHealth)
