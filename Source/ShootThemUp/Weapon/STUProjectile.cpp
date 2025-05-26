@@ -4,6 +4,7 @@
 #include "STUProjectile.h"
 
 #include "DrawDebugHelpers.h"
+#include "Components/STUWeaponFXComponent.h"
 #include "Components/SphereComponent.h"
 #include "Engine/World.h"
 #include "GameFramework/DamageType.h"
@@ -26,6 +27,8 @@ ASTUProjectile::ASTUProjectile()
     MovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("MovementComponent"));
     MovementComponent->InitialSpeed = 2'000.f;
     MovementComponent->ProjectileGravityScale = 0.f;
+
+    WeaponFXComponent = CreateDefaultSubobject<USTUWeaponFXComponent>(TEXT("WeaponFXComponent"));
 }
 
 void ASTUProjectile::SetLaunchDirection(FVector Direction)
@@ -60,6 +63,8 @@ void ASTUProjectile::OnProjectileHit(
         GetCauserController(),
         bDoFullDamage);
 
+    WeaponFXComponent->PlayImpactFX(Hit);
+
     DrawDebugSphere(
         World,
         GetActorLocation(),
@@ -78,6 +83,7 @@ void ASTUProjectile::BeginPlay()
 
     check(IsValid(CollisionComponent));
     check(IsValid(MovementComponent));
+    check(IsValid(WeaponFXComponent));
 
     CollisionComponent->OnComponentHit.AddDynamic(this, &ThisClass::OnProjectileHit);
     CollisionComponent->IgnoreActorWhenMoving(GetOwner(), true);

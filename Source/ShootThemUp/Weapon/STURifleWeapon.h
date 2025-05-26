@@ -6,6 +6,7 @@
 #include "STUWeaponBase.h"
 #include "STURifleWeapon.generated.h"
 
+class USTUWeaponFXComponent;
 /**
  * 
  */
@@ -16,10 +17,17 @@ class SHOOTTHEMUP_API ASTURifleWeapon : public ASTUWeaponBase
 
 public:
 
+    ASTURifleWeapon();
+
+    virtual void BeginPlay() override;
+
     virtual void StartFire() override;
     virtual void StopFire() override;
 
 protected:
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+    TObjectPtr<USTUWeaponFXComponent> WeaponFXComponent;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Units="Seconds"))
     float TimeBetweenShots{.1f};

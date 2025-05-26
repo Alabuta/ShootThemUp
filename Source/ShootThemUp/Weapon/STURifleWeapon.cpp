@@ -5,11 +5,24 @@
 
 #include "DrawDebugHelpers.h"
 #include "TimerManager.h"
+#include "Components/STUWeaponFXComponent.h"
 #include "Engine/DamageEvents.h"
 #include "Engine/Engine.h"
 #include "Engine/HitResult.h"
 #include "GameFramework/PlayerController.h"
 
+
+ASTURifleWeapon::ASTURifleWeapon()
+{
+    WeaponFXComponent = CreateDefaultSubobject<USTUWeaponFXComponent>(TEXT("WeaponFXComponent"));
+}
+
+void ASTURifleWeapon::BeginPlay()
+{
+    Super::BeginPlay();
+
+    check(IsValid(WeaponFXComponent));
+}
 
 void ASTURifleWeapon::StartFire()
 {
@@ -82,11 +95,13 @@ void ASTURifleWeapon::MakeShot()
         return;
     }
 
+    WeaponFXComponent->PlayImpactFX(*HitResult);
+
     MakeDamage(*HitResult);
 
     DecreaseAmmo();
 
-    DrawDebugLine(
+    /*DrawDebugLine(
         World,
         MuzzleSocketLocation,
         HitResult->ImpactPoint,
@@ -109,7 +124,7 @@ void ASTURifleWeapon::MakeShot()
         -1,
         5.f,
         FColor::Red,
-        FString::Printf(TEXT("Bone: %s"), *HitResult->BoneName.ToString()));
+        FString::Printf(TEXT("Bone: %s"), *HitResult->BoneName.ToString()));*/
 }
 
 void ASTURifleWeapon::MakeDamage(const FHitResult& HitResult)
