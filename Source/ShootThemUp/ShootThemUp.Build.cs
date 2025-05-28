@@ -13,6 +13,7 @@ public class ShootThemUp : ModuleRules
 			"CoreUObject",
 			"Engine",
 			"InputCore",
+			"PhysicsCore",
 			"Niagara"
 		]);
 

@@ -24,7 +24,10 @@ public:
 protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="VFX")
-    TObjectPtr<UNiagaraSystem> ImpactFX;
+    TObjectPtr<UNiagaraSystem> DefaultImpactFX;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="VFX")
+    TMap<TObjectPtr<UPhysicalMaterial>, TObjectPtr<UNiagaraSystem>> ImpactFXMap;
 
 	virtual void BeginPlay() override;
 };

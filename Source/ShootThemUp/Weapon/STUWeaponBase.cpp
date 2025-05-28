@@ -125,6 +125,7 @@ TOptional<FHitResult> ASTUWeaponBase::Trace(const FVector& TraceStart, const FVe
 
     FCollisionQueryParams QueryParams;
     QueryParams.AddIgnoredActor(this);
+    QueryParams.bReturnPhysicalMaterial = true;
 
     World->LineTraceSingleByChannel(
         HitResult,

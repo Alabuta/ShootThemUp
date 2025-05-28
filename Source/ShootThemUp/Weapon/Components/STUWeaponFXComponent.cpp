@@ -15,6 +15,17 @@ USTUWeaponFXComponent::USTUWeaponFXComponent()
 
 void USTUWeaponFXComponent::PlayImpactFX(const FHitResult& HitResult)
 {
+    UNiagaraSystem* ImpactFX = DefaultImpactFX;
+    
+    if (HitResult.PhysMaterial.IsValid())
+    {
+        if (const auto* FoundImpactFX = ImpactFXMap.Find(HitResult.PhysMaterial.Get());
+            FoundImpactFX != nullptr && IsValid(*FoundImpactFX))
+        {
+            ImpactFX = *FoundImpactFX;
+        }
+    }
+    
     UNiagaraFunctionLibrary::SpawnSystemAtLocation(
         GetWorld(),
         ImpactFX,
