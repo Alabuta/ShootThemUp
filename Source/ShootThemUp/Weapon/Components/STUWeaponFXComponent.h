@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "ShootThemUp/STUCoreTypes.h"
 #include "STUWeaponFXComponent.generated.h"
 
 
@@ -24,10 +25,10 @@ public:
 protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="VFX")
-    TObjectPtr<UNiagaraSystem> DefaultImpactFX;
+    FSTUImpactFXData DefaultImpactFXData;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="VFX")
-    TMap<TObjectPtr<UPhysicalMaterial>, TObjectPtr<UNiagaraSystem>> ImpactFXMap;
+    TMap<TObjectPtr<UPhysicalMaterial>, FSTUImpactFXData> ImpactFXDataMap;
 
 	virtual void BeginPlay() override;
 };
