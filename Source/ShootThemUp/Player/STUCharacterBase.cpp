@@ -142,8 +142,6 @@ void ASTUCharacterBase::OnDeath()
 {
     UE_LOGFMT(LogSTUCharacterBase, Warning, "Character %s is dead! [{0}]", *GetNameSafe(this));
 
-    PlayAnimMontage(DeathAnimMontage);
-
     if (auto* MovementComponent = GetCharacterMovement(); IsValid(MovementComponent))
     {
         MovementComponent->DisableMovement();
@@ -162,6 +160,12 @@ void ASTUCharacterBase::OnDeath()
     }
 
     GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
+    if (auto* SkeletalMeshComponent = GetMesh(); IsValid(SkeletalMeshComponent))
+    {
+        SkeletalMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+        SkeletalMeshComponent->SetSimulatePhysics(true);
+    }
 }
 
 void ASTUCharacterBase::OnHealthChanged(const float CurrentHealth)

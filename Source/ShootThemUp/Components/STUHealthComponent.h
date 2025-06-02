@@ -8,6 +8,7 @@
 #include "STUHealthComponent.generated.h"
 
 
+class UCameraShakeBase;
 class AController;
 class UDamageType;
 
@@ -39,6 +40,9 @@ public:
     bool TryAddHealth(const float HealthAmount);
 
 protected:
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="VFX")
+    TSubclassOf<UCameraShakeBase> CameraShakeOnDamage;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Health", meta=(ClampMin="1", ClampMax="1000"))
     float MaxHealth{100.f};
@@ -74,6 +78,8 @@ private:
 
     void HealUpdate();
     void SetHealth(const float NewHealth);
+
+    void PlayCameraShake();
 };
 
 inline float USTUHealthComponent::GetHealth() const

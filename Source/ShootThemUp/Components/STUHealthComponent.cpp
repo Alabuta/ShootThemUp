@@ -4,8 +4,10 @@
 #include "STUHealthComponent.h"
 
 #include "TimerManager.h"
+#include "Camera/CameraShakeBase.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
+#include "GameFramework/PlayerController.h"
 #include "Logging/StructuredLog.h"
 #include "ShootThemUp/Player/STUCharacterBase.h"
 
@@ -82,6 +84,8 @@ void USTUHealthComponent::OnTakeAnyDamage(
             HealStartDelay
         );
     }
+
+    PlayCameraShake();
 }
 
 void USTUHealthComponent::HealUpdate()
@@ -101,4 +105,31 @@ void USTUHealthComponent::SetHealth(const float NewHealth)
 {
     CurrentHealth = FMath::Clamp(NewHealth, 0.f, MaxHealth);
     OnHealthChanged.Broadcast(CurrentHealth);
+}
+
+void USTUHealthComponent::PlayCameraShake()
+{
+    if (IsDead())
+    {
+        return;
+    }
+
+    if (!IsValid(CameraShakeOnDamage))
+    {
+        return;
+    }
+
+    const auto* PlayerPawn = GetOwner<APawn>();
+    if (!IsValid(PlayerPawn))
+    {
+        return;
+    }
+
+    const auto* PlayerController = PlayerPawn->GetController<APlayerController>();
+    if (!IsValid(PlayerController) || !IsValid(PlayerController->PlayerCameraManager))
+    {
+        return;
+    }
+
+    PlayerController->PlayerCameraManager->StartCameraShake(CameraShakeOnDamage);
 }
