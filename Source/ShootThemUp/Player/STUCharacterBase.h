@@ -87,5 +87,5 @@ private:
 	void OnStopRunning();
 
     void OnDeath();
-    void OnHealthChanged(const float CurrentHealth);
+    void OnHealthChanged(const float CurrentHealth, const float Delta);
 };

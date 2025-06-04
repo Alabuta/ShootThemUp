@@ -34,8 +34,17 @@ public:
     UFUNCTION(BlueprintPure, Category="UI")
     bool IsPlayerSpectator() const;
 
+protected:
+
+    UFUNCTION(BlueprintImplementableEvent, Category="UI")
+    void OnTakeDamage();
+
+    virtual bool Initialize() override;
+
 private:
 
     template <class T>
     T* GetOwningPlayerComponent() const;
+
+    void OnHealthChanged(const float CurrentHealth, const float Delta);
 };

@@ -62,7 +62,7 @@ void ASTUCharacterBase::BeginPlay()
 
     if (IsValid(HealthComponent))
     {
-        OnHealthChanged(HealthComponent->GetHealth());
+        OnHealthChanged(HealthComponent->GetHealth(), 0.f);
     }
 }
 
@@ -168,7 +168,7 @@ void ASTUCharacterBase::OnDeath()
     }
 }
 
-void ASTUCharacterBase::OnHealthChanged(const float CurrentHealth)
+void ASTUCharacterBase::OnHealthChanged(const float CurrentHealth, const float Delta)
 {
     if (IsValid(HealthRenderComponent) && IsValid(HealthComponent))
     {

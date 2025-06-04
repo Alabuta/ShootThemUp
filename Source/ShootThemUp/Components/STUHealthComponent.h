@@ -19,7 +19,7 @@ class SHOOTTHEMUP_API USTUHealthComponent : public UActorComponent
 	GENERATED_BODY()
 
     DECLARE_MULTICAST_DELEGATE(FOnDeathSignature);
-    DECLARE_MULTICAST_DELEGATE_OneParam(FOnHealthChangedSignature, const float);
+    DECLARE_MULTICAST_DELEGATE_TwoParams(FOnHealthChangedSignature, const float, const float);
 
 public:
 

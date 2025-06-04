@@ -38,6 +38,26 @@ bool USTUPlayerWidget::IsPlayerSpectator() const
     return IsValid(PlayerController) && PlayerController->GetStateName() == NAME_Spectating;
 }
 
+bool USTUPlayerWidget::Initialize()
+{
+    const auto bSuperInitialized = Super::Initialize();
+
+    if (auto* HealthComponent = GetOwningPlayerComponent<USTUHealthComponent>(); IsValid(HealthComponent))
+    {
+        HealthComponent->OnHealthChanged.AddUObject(this, &ThisClass::OnHealthChanged);
+    }
+
+    return bSuperInitialized;
+}
+
+void USTUPlayerWidget::OnHealthChanged(const float CurrentHealth, const float Delta)
+{
+    if (Delta < 0.f)
+    {
+        OnTakeDamage();
+    }
+}
+
 template <class T>
 T* USTUPlayerWidget::GetOwningPlayerComponent() const
 {
