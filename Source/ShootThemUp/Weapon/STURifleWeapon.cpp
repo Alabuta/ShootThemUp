@@ -10,6 +10,7 @@
 #include "Engine/Engine.h"
 #include "Engine/HitResult.h"
 #include "GameFramework/PlayerController.h"
+#include "NiagaraComponent.h"
 
 
 ASTURifleWeapon::ASTURifleWeapon()
@@ -26,6 +27,7 @@ void ASTURifleWeapon::BeginPlay()
 
 void ASTURifleWeapon::StartFire()
 {
+    InitMuzzleFX();
     GetWorldTimerManager().SetTimer(ShotTimerHandle, this, &ThisClass::MakeShot, TimeBetweenShots, true);
     MakeShot();
 }
@@ -33,6 +35,7 @@ void ASTURifleWeapon::StartFire()
 void ASTURifleWeapon::StopFire()
 {
     GetWorldTimerManager().ClearTimer(ShotTimerHandle);
+    SetMuzzleFXVisibility(false);
 }
 
 TPair<FVector, FVector> ASTURifleWeapon::GetTracePoints(const APlayerController* PlayerController) const
@@ -100,31 +103,25 @@ void ASTURifleWeapon::MakeShot()
     MakeDamage(*HitResult);
 
     DecreaseAmmo();
+}
 
-    /*DrawDebugLine(
-        World,
-        MuzzleSocketLocation,
-        HitResult->ImpactPoint,
-        FColor::Red,
-        false,
-        3.f,
-        0,
-        2.f);
+void ASTURifleWeapon::InitMuzzleFX()
+{
+    if (!IsValid(MuzzleFXComponent))
+    {
+        MuzzleFXComponent = SpawnMuzzleFX();
+    }
 
-    DrawDebugSphere(
-        World,
-        HitResult->ImpactPoint,
-        10.f,
-        24,
-        FColor::Orange,
-        false,
-        5.f);
+    SetMuzzleFXVisibility(true);
+}
 
-    GEngine->AddOnScreenDebugMessage(
-        -1,
-        5.f,
-        FColor::Red,
-        FString::Printf(TEXT("Bone: %s"), *HitResult->BoneName.ToString()));*/
+void ASTURifleWeapon::SetMuzzleFXVisibility(const bool bVisible) const
+{
+    if (IsValid(MuzzleFXComponent))
+    {
+        MuzzleFXComponent->SetPaused(!bVisible);
+        MuzzleFXComponent->SetVisibility(bVisible, true);
+    }
 }
 
 void ASTURifleWeapon::MakeDamage(const FHitResult& HitResult)

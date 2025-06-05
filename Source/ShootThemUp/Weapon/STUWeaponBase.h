@@ -3,10 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "NiagaraCommon.h"
 #include "GameFramework/Actor.h"
 #include "STUWeaponBase.generated.h"
 
 
+class UNiagaraSystem;
 class ASTUWeaponBase;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnClipEmptySignature, ASTUWeaponBase*);
@@ -75,6 +77,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category="UI")
     FSTUWeaponUIData UIData;
 
+    UPROPERTY(EditDefaultsOnly, Category="VFX")
+    TObjectPtr<UNiagaraSystem> MuzzleFX;
+
     virtual void BeginPlay() override;
 
     APlayerController* GetPlayerController() const;
@@ -90,6 +95,8 @@ protected:
     TOptional<FHitResult> Trace(const FVector& TraceStart, const FVector& TraceEnd) const;
 
     void DecreaseAmmo();
+
+    UNiagaraComponent* SpawnMuzzleFX() const;
 
     static TPair<FVector, FRotator> GetPlayerViewPoint(const APlayerController* PlayerController);
 

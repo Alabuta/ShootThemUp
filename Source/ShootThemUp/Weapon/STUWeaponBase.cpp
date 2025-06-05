@@ -4,6 +4,8 @@
 #include "STUWeaponBase.h"
 
 #include "DrawDebugHelpers.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraSystem.h"
 #include "TimerManager.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/Engine.h"
@@ -152,6 +154,26 @@ void ASTUWeaponBase::DecreaseAmmo()
         StopFire();
         OnClipEmpty.Broadcast(this);
     }
+}
+
+UNiagaraComponent* ASTUWeaponBase::SpawnMuzzleFX() const
+{
+    if (!MuzzleFX)
+    {
+        UE_LOGFMT(LogSTUBaseWeapon, Warning, "Muzzle FX is not set for weapon: {0}", *GetNameSafe(this));
+        return nullptr;
+    }
+
+    auto* MuzzleFXComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
+        MuzzleFX,
+        SkeletalMeshComponent,
+        MuzzleSocketName,
+        FVector::ZeroVector,
+        FRotator::ZeroRotator,
+        EAttachLocation::SnapToTarget,
+        true);
+
+    return MuzzleFXComponent;
 }
 
 TPair<FVector, FRotator> ASTUWeaponBase::GetPlayerViewPoint(const APlayerController* PlayerController)

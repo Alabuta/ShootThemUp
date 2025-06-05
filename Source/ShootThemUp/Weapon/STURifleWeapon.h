@@ -44,7 +44,12 @@ protected:
 
 private:
 
+    UPROPERTY(Transient)
+    UNiagaraComponent* MuzzleFXComponent{nullptr};
+
     FTimerHandle ShotTimerHandle;
 
+    void InitMuzzleFX();
+    void SetMuzzleFXVisibility(const bool bVisible) const;
     void MakeDamage(const FHitResult& HitResult);
 };
