@@ -51,5 +51,6 @@ private:
 
     void InitMuzzleFX();
     void SetMuzzleFXVisibility(const bool bVisible) const;
+
     void MakeDamage(const FHitResult& HitResult);
 };

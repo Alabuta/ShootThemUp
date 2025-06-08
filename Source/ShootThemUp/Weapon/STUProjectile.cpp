@@ -66,15 +66,6 @@ void ASTUProjectile::OnProjectileHit(
 
     WeaponFXComponent->PlayImpactFX(Hit);
 
-    DrawDebugSphere(
-        World,
-        GetActorLocation(),
-        DamageRadius,
-        24,
-        FColor::Red,
-        false,
-        5.f);
-
     Destroy();
 }
 

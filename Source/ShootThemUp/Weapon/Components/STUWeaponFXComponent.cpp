@@ -2,6 +2,8 @@
 
 
 #include "Components/STUWeaponFXComponent.h"
+
+#include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Components/DecalComponent.h"
 #include "Engine/HitResult.h"
@@ -43,6 +45,15 @@ void USTUWeaponFXComponent::PlayImpactFX(const FHitResult& HitResult)
     if (IsValid(DecalComponent))
     {
         DecalComponent->SetFadeOut(ImpactFXData.DecalData.LifeTime, ImpactFXData.DecalData.FadeOutTime);
+    }
+}
+
+void USTUWeaponFXComponent::SpawnTraceFX(const FVector& TraceStart, const FVector& TraceEnd) const
+{
+    auto* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), TraceFXSystem, TraceStart);
+    if (IsValid(NiagaraComponent))
+    {
+        NiagaraComponent->SetVariableVec3(TraceTargetParamName, TraceEnd);
     }
 }
 

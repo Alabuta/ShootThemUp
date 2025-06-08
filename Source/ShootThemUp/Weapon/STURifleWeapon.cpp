@@ -80,27 +80,19 @@ void ASTURifleWeapon::MakeShot()
         return;
     }
 
-    const auto MuzzleSocketLocation = GetMuzzleWorldLocation();
+    const auto TraceEndPoint = HitResult->bBlockingHit
+                                   ? HitResult->ImpactPoint
+                                   : TraceEnd;
 
-    if (!HitResult->bBlockingHit)
+    if (HitResult->bBlockingHit)
     {
-        DrawDebugLine(
-            World,
-            MuzzleSocketLocation,
-            TraceEnd,
-            FColor::Red,
-            false,
-            3.f,
-            0,
-            2.f
-        );
+        WeaponFXComponent->PlayImpactFX(*HitResult);
 
-        return;
+        MakeDamage(*HitResult);
     }
 
-    WeaponFXComponent->PlayImpactFX(*HitResult);
-
-    MakeDamage(*HitResult);
+    const auto MuzzleSocketLocation = GetMuzzleWorldLocation();
+    WeaponFXComponent->SpawnTraceFX(MuzzleSocketLocation, TraceEndPoint);
 
     DecreaseAmmo();
 }
