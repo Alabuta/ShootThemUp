@@ -20,9 +20,10 @@ public class ShootThemUp : ModuleRules
 		// PrivateDependencyModuleNames.AddRange(new string[] {  });
 
 		PublicIncludePaths.AddRange([
-			"ShootThemUp/Weapon"
-			// "ShootThemUp/Game",
-			// "ShootThemUp/Player"
+			"ShootThemUp/Weapon",
+			"ShootThemUp/Game",
+			"ShootThemUp/Player",
+			"ShootThemUp/AI"
 		]);
 
 		// Uncomment if you are using Slate UI
