@@ -6,6 +6,7 @@
 #include "STUCharacterBase.h"
 #include "STUAICharacter.generated.h"
 
+class UBehaviorTree;
 /**
  * 
  */
@@ -17,4 +18,11 @@ class SHOOTTHEMUP_API ASTUAICharacter : public ASTUCharacterBase
 public:
 
     explicit ASTUAICharacter(const FObjectInitializer& ObjectInitializer);
+
+    UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
+
+protected:
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="AI")
+    TObjectPtr<UBehaviorTree> BehaviorTree;
 };
