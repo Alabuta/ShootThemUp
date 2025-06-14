@@ -15,13 +15,13 @@ bool ASTUAmmoPickupItem::GivePickupItemTo(APawn* Pawn)
         return false;
     }
 
-    if (const auto* HealthComponent = FSTUUtils::GetPawnComponent<USTUHealthComponent>(Pawn);
+    if (const auto* HealthComponent = Pawn->GetComponentByClass<USTUHealthComponent>();
         !IsValid(HealthComponent) || HealthComponent->IsDead())
     {
         return false;
     }
 
-    const auto* WeaponComponent = FSTUUtils::GetPawnComponent<USTUWeaponComponent>(Pawn);
+    const auto* WeaponComponent = Pawn->GetComponentByClass<USTUWeaponComponent>();
     if (!IsValid(WeaponComponent))
     {
         return false;
