@@ -98,7 +98,7 @@ protected:
 
     UNiagaraComponent* SpawnMuzzleFX() const;
 
-    static TPair<FVector, FRotator> GetPlayerViewPoint(const APlayerController* PlayerController);
+    TPair<FVector, FRotator> GetPlayerViewPoint(const APlayerController* PlayerController) const;
 
 private:
 

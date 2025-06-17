@@ -5,7 +5,7 @@
 
 #include "DrawDebugHelpers.h"
 #include "NiagaraFunctionLibrary.h"
-#include "NiagaraSystem.h"
+#include "STUCharacterBase.h"
 #include "TimerManager.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/Engine.h"
@@ -176,17 +176,31 @@ UNiagaraComponent* ASTUWeaponBase::SpawnMuzzleFX() const
     return MuzzleFXComponent;
 }
 
-TPair<FVector, FRotator> ASTUWeaponBase::GetPlayerViewPoint(const APlayerController* PlayerController)
+TPair<FVector, FRotator> ASTUWeaponBase::GetPlayerViewPoint(const APlayerController* PlayerController) const
 {
-    if (!IsValid(PlayerController))
+    const auto* OwnerCharacter = GetOwner<ASTUCharacterBase>();
+    if (!IsValid(OwnerCharacter))
     {
         return {};
     }
 
-    FVector PlayerViewPointLocation;
-    FRotator PlayerViewPointRotation;
+    if (OwnerCharacter->IsPlayerControlled())
+    {
+        if (!IsValid(PlayerController))
+        {
+            return {};
+        }
 
-    PlayerController->GetPlayerViewPoint(PlayerViewPointLocation, PlayerViewPointRotation);
+        FVector PlayerViewPointLocation;
+        FRotator PlayerViewPointRotation;
 
-    return TPair<FVector, FRotator>{PlayerViewPointLocation, PlayerViewPointRotation};
+        PlayerController->GetPlayerViewPoint(PlayerViewPointLocation, PlayerViewPointRotation);
+
+        return TPair<FVector, FRotator>{PlayerViewPointLocation, PlayerViewPointRotation};
+    }
+
+    return TPair<FVector, FRotator>{
+        GetMuzzleWorldLocation(),
+        SkeletalMeshComponent->GetSocketRotation(MuzzleSocketName)};
+
 }

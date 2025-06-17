@@ -66,10 +66,6 @@ void ASTURifleWeapon::MakeShot()
     }
 
     const auto* PlayerController = GetPlayerController();
-    if (!IsValid(PlayerController))
-    {
-        return;
-    }
 
     const auto [TraceStart, TraceEnd] = GetTracePoints(PlayerController);
     const auto HitResult = Trace(TraceStart, TraceEnd);
